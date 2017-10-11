@@ -1,0 +1,26 @@
+<annotation>
+	<folder>VOC2007</folder>
+	<filename>00073.jpg</filename>
+	<path>/opt/gongjia/darknet/VOCdevkit/VOC2007/JPEGImages/00073.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>64</width>
+		<height>128</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>woman</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>13</xmin>
+			<ymin>16</ymin>
+			<xmax>52</xmax>
+			<ymax>122</ymax>
+		</bndbox>
+	</object>
+</annotation>
