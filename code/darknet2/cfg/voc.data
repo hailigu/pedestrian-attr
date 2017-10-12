@@ -1,0 +1,6 @@
+classes= 1
+train  = /opt/gongjia/darknet/train.txt
+#valid  = /opt/gongjia/darknet/2007_test.txt
+names = data/voc.names
+backup = backup
+
