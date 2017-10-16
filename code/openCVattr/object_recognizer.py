@@ -18,7 +18,6 @@ class ImageTagExtractor(object):
         image_tag = self.erf.classify(feature_vector)[0]
         return image_tag
 
-
 if __name__=='__main__':
 
     model_file = 'erf.pkl'
