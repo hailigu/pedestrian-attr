@@ -3,6 +3,7 @@ import cv2
 import openCVattr.build_features as bf
 from openCVattr.trainer import ERFTrainer
 
+
 class ImageTagExtractor(object):
     def __init__(self, model_file, codebook_file):
         with open(model_file, 'rb') as f:
