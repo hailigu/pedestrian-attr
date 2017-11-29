@@ -16,8 +16,12 @@ from ...cython_utils.cy_yolo2_findboxes import box_constructor
 ds = True
 csvfilename = 'test.avi.csv'
 csvfile = CsvFile(csvfilename)
-person_count=[]
-dict = {}
+
+llx1 = 547
+llx2 = 1251
+lly1 = 825
+lly2 = 964
+ids = []
 
 try :
 	from deep_sort.application_util import preprocessing as prep
@@ -43,7 +47,7 @@ def findboxes(self, net_out):
 	return boxes
 
 
-def extract_boxes(self,new_im):
+def extract_boxes(new_im):
     cont = []
     new_im=new_im.astype(np.uint8)
     ret, thresh=cv2.threshold(new_im, 127, 255, 0)
@@ -53,11 +57,8 @@ def extract_boxes(self,new_im):
         cnt=contours[i]
         x, y, w, h=cv2.boundingRect(cnt)
         if w*h > 30**2 and ((w < new_im.shape[0] and h <= new_im.shape[1]) or (w <= new_im.shape[0] and h < new_im.shape[1])):
-            if self.FLAGS.tracker == "sort":
-                cont.append([x, y, x+w, y+h])
-            else : cont.append([x, y, w, h])
+            cont.append([x, y, w, h])
     return cont
-
 def update_csv(count):
 	with open(csvfilename, 'rb') as csvfile:
 		reader = csv.DictReader(csvfile)
@@ -67,9 +68,9 @@ def update_csv(count):
 	if count == 0:
 		return len(clist)
 	else:
-		return clist.index(count)
+		return count #clist.index(count) + 1
 
-def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None,encoder=None,tracker=None, save = False):
+def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None,encoder=None,tracker=None):
 	"""
 	Takes net output, draw net_out, save to disk
 	"""
@@ -116,19 +117,16 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			if boxResults is None:
 				continue
 			left, right, top, bot, mess, max_indx, confidence = boxResults
-			if mess not in self.FLAGS.trackObj :
+			if self.FLAGS.trackObj != mess :
 				continue
 			if self.FLAGS.tracker == "deep_sort":
 				detections.append(np.array([left,top,right-left,bot-top]).astype(np.float64))
 				scores.append(confidence)
 			elif self.FLAGS.tracker == "sort":
 				detections.append(np.array([left,top,right,bot]).astype(np.float64))
-		if len(detections) < 3  and self.FLAGS.BK_MOG:
-			detections = detections + extract_boxes(self,mask)
-
+		if len(detections) < 5  and self.FLAGS.BK_MOG:
+			detections = detections + extract_boxes(mask)
 		detections = np.array(detections)
-		if detections.shape[0] == 0 :
-			return imgcv
 		if self.FLAGS.tracker == "deep_sort":
 			scores = np.array(scores)
 			features = encoder(imgcv, detections.copy())
@@ -145,6 +143,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			trackers = tracker.tracks
 		elif self.FLAGS.tracker == "sort":
 			trackers = tracker.update(detections)
+
 		for track in trackers:
 			if self.FLAGS.tracker == "deep_sort":
 				if not track.is_confirmed() or track.time_since_update > 1:
@@ -158,58 +157,37 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				csv.writerow([frame_id,id_num,int(bbox[0]),int(bbox[1]),int(bbox[2])-int(bbox[0]),int(bbox[3])-int(bbox[1])])
 				csv_file.flush()
 			if self.FLAGS.display or self.FLAGS.saveVideo:
-				global person_count
-				global dict
-				# Black
-				# LightPink
-				# Crimson
-				# Purple
-				# Blue
+				#cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
+				#		        (255,255,255), thick//3)
+				#cv2.putText(imgcv, id_num,(int(bbox[0]), int(bbox[1]) - 12),0, 1e-3 * h, (255,255,255),thick//6)
 
-				# Cyan
-				# SeaGreen
-				# Yellow
-				# DarkOrange
-				# Gray
-				list_color = [(0, 0, 0), (255,182,193),(128,0,128),(255, 0, 255),(0,0,255),
-							  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128)]
-				id_person = int(update_csv(int(id_num)))
-				id_person_color = id_person % len(list_color)
+				if id_num not in ids:
 
+					newone = False
+					ii = 0  
+
+					while ii < 10: # Add a colon  
+						nx = llx1 + (llx2 - llx1) * ii/ 10. 
+						ny = lly1 + (lly2 - lly1) * ii/ 10. 
+						minx = min(bbox[0], bbox[2])
+						maxx = max(bbox[0], bbox[2])
+						miny = min(bbox[1], bbox[3])
+						maxy = max(bbox[1], bbox[3])
+						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
+							newone = True;
+							break
+						ii += 1  
+
+					if newone:
+						ids.append(id_num)
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
-							  list_color[id_person_color], thick//3)
-
-				# init
-				if len(dict) == 0:
-					for i in range(0, 99999):
-						dict[i] = []
-						person_count.append(0)
-
-
-				center_x = (int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2)
-				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2 )
-
-				dict[id_person].append((center_x, center_y))
-				#print id_person,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3]))
-				for i in range(0, len(dict[id_person])):
-					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], thick // 5)
-					if i>0:
-						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 5)
-
-				person_count[id_person] = person_count[id_person] + 1
-				# frame num = 200  10s
-				if 	person_count[id_person]%200 == 0:
-					person_count[id_person] = 0
-					dict[id_person] = []
-
-				#cv2.putText(imgcv, id_num,(int(bbox[0]), int(bbox[1]) - 12),0, 1e-3 * h, (255,0,255),thick//6)
-
-				# show person id
-				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
-				# set font
+						        (0,255,0), thick//3)
+				cv2.putText(imgcv, str(update_csv(int(id_num))), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, 							(255, 0, 255), thick // 6)
 				font = cv2.FONT_HERSHEY_TRIPLEX
-				# count the person
-				mycount = update_csv(0)
-				# show to UI
-				cv2.putText(imgcv, 'gong count: '+str(mycount), (10,70),0, 1e-3 * h, (0,0,255),thick//6)
+				#mycount = update_csv(0)
+				cv2.putText(imgcv, 'gong count: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,255),thick//6)
+
+        lineThickness = 2
+        cv2.line(imgcv, (llx1, lly1), (llx2, lly2), (0,255,0), lineThickness)
+
 	return imgcv
