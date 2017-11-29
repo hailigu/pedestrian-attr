@@ -12,7 +12,7 @@
 			> conda list						会看到所需的pyqt5, lxml已在其中
   ● 安装运行labelimg
 		> cd labelimg
-		> pyrcc4 -o resources.py resources.qrc
+		> pyrcc5 -o resources.py resources.qrc
 		> python labelImg.py
 		demo实例：Open Dir选择 labelimg/demo/JPEGImages, Save Dir选择labelimg/demo/Annotations
 2. 标注方法：
