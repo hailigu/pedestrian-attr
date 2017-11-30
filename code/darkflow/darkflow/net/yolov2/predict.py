@@ -24,6 +24,10 @@ ids = []
 ids2 = []
 ids_box = []
 
+flag_display_line = False
+flag_display_box = True
+flag_display_tail = False
+
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -211,18 +215,18 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 
 				quadrant = quadrant_center
 
-				cv2.line(imgcv, (quadrant[0]), (quadrant[1]), color_box, lineThickness)
-				cv2.line(imgcv, (quadrant[1]), (quadrant[2]), color_box, lineThickness)
-				cv2.line(imgcv, (quadrant[2]), (quadrant[3]), color_box, lineThickness)
-				cv2.line(imgcv, (quadrant[3]), (quadrant[0]), color_box, lineThickness)
-
+				if flag_display_box:
+					cv2.rectangle(imgcv, quadrant[0], quadrant[2],
+								  color_box, lineThickness)
 
 				# draw line
 				llx1 = int(w / 4)
 				lly1 = int(h*3 / 4)
 				llx2 = int(w*3 / 4)
 				lly2 = int(h*3 / 4)
-				cv2.line(imgcv, (llx1, lly1), (llx2, lly2), color_line, lineThickness)
+
+				if flag_display_line:
+					cv2.line(imgcv, (llx1, lly1), (llx2, lly2), color_line, lineThickness)
 
 				if id_num not in ids:
 					newone = False
@@ -238,7 +242,8 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						maxy = max(bbox[1], bbox[3])
 						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
 							newone = True;
-							cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], lineThickness)
+							if flag_display_line:
+								cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], lineThickness)
 							break
 						ii += 1
 
@@ -267,14 +272,15 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						dlist = list(set(ids2))
 						ids_box = sorted([int(i) for i in dlist])
 
-				for i in range(0, len(dict[id_person])):
-					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], lineThickness)
-					if i>0:
-						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], lineThickness)
+				if flag_display_tail:
+					for i in range(0, len(dict[id_person])):
+						cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], lineThickness)
+						if i>0:
+							cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], lineThickness)
 
 				person_count[id_person] = person_count[id_person] + 1
 
-				# frame num
+				# frame num for the len of tail
 				if 	person_count[id_person]%10 == 0:
 					person_count[id_person] = 0
 					dict[id_person] = []
@@ -283,12 +289,17 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
 				# set font
 				font = cv2.FONT_HERSHEY_TRIPLEX
+
 				# count the person
 				mycount = update_csv(0)+1
 
 				# show to UI
 				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
-				cv2.putText(imgcv, 'LineSort: '+str(len(ids)), (10,70),0, 1e-3 * h, color_line,lineThickness)
-				cv2.putText(imgcv, 'QuadSort: ' + str(len(ids_box)), (10, 110), 0, 1e-3 * h, color_box, lineThickness)
+
+				if flag_display_line:
+					cv2.putText(imgcv, 'LineSort: '+str(len(ids)), (10,70),0, 1e-3 * h, color_line,lineThickness)
+
+				if flag_display_box:
+					cv2.putText(imgcv, 'QuadSort: ' + str(len(ids_box)), (10, 110), 0, 1e-3 * h, color_box, lineThickness)
 
 	return imgcv
