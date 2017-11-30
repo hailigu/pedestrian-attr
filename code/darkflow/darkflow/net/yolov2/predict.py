@@ -22,8 +22,8 @@ dict = {}
 
 ids = []
 
-llx1 = 250
-llx2 = 900
+llx1 = 200
+llx2 = 1000
 lly1 = 600
 lly2 = 600
 try :
@@ -167,7 +167,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			if self.FLAGS.display or self.FLAGS.saveVideo:
 				global person_count
 				global dict
-				# Black
+				# SpringGreen1
 				# LightPink
 				# Crimson
 				# Purple
@@ -178,8 +178,22 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				# Yellow
 				# DarkOrange
 				# Gray
-				list_color = [(0, 0, 0), (255,182,193),(128,0,128),(255, 0, 255),(0,0,255),
-							  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128)]
+
+                # LightSlateGray
+                # SlateBlue
+                # MediumAquamarine
+                # LightSeaGreen
+                # Sienna
+
+                # grey51
+                # Thistle1
+                # Magenta4
+                # DarkOrange4
+                # RosyBrown4
+				list_color = [(0,255,127), (255,182,193),(128,0,128),(255, 0, 255),(0,0,255),
+							  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128),
+                              (119, 136, 153), (106, 90, 205), (102, 205, 170), (32 , 178, 170), (160, 82, 45),
+                              (130, 130, 130), (255, 225, 255), (139, 0, 139), (139, 69, 0), (139, 105, 105)]
 				id_person = int(update_csv(int(id_num)))
 				id_person_color = id_person % len(list_color)
 
@@ -188,6 +202,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 					newone = False
 					ii = 0  
 
+                    # the width of box, will be > line/10  (900-250)/10 = 65, the same to height
 					while ii < 10: # Add a colon  
 						nx = llx1 + (llx2 - llx1) * ii/ 10. 
 						ny = lly1 + (lly2 - lly1) * ii/ 10. 
@@ -197,11 +212,13 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						maxy = max(bbox[1], bbox[3])
 						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
 							newone = True;
+							cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], thick // 5)
 							break
-						ii += 1  
+						ii += 1
 
 					if newone:
 						ids.append(id_num)
+
 
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
 							  list_color[id_person_color], thick//3)
@@ -214,19 +231,19 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 
 
 				center_x = (int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2)
-				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2 )
+				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) )
 
 				dict[id_person].append((center_x, center_y))
 				#print id_person,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3]))
-                
+
 				for i in range(0, len(dict[id_person])):
 					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], thick // 5)
 					if i>0:
 						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 2)
 
 				person_count[id_person] = person_count[id_person] + 1
-				# frame num = 200  10s
-				if 	person_count[id_person]%200 == 0:
+				# frame num
+				if 	person_count[id_person]%10 == 0:
 					person_count[id_person] = 0
 					dict[id_person] = []
 
@@ -238,8 +255,9 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				font = cv2.FONT_HERSHEY_TRIPLEX
 				# count the person
 				mycount = update_csv(0)
+
 				# show to UI
-				cv2.putText(imgcv, 'deepsort: '+str(mycount), (10,10),0, 1e-3 * h, (0,0,255),thick//4)
+				cv2.putText(imgcv, 'deepsort: '+str(mycount), (10,30),0, 1e-3 * h, (0,0,255),thick//4)
 				cv2.putText(imgcv, 'linesort: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,0),thick//4)
 
         lineThickness = 2
