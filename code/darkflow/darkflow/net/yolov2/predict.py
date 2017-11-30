@@ -286,12 +286,12 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 					dict[id_person] = []
 
 				# show person id
-				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
+				cv2.putText(imgcv, str(id_person+1), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
 				# set font
 				font = cv2.FONT_HERSHEY_TRIPLEX
 
 				# count the person
-				mycount = update_csv(0)+1
+				mycount = update_csv(0)
 
 				# show to UI
 				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
