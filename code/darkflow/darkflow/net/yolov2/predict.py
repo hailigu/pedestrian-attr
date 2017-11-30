@@ -19,6 +19,13 @@ csvfile = CsvFile(csvfilename)
 person_count=[]
 dict = {}
 
+
+ids = []
+
+llx1 = 250
+llx2 = 900
+lly1 = 600
+lly2 = 600
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -176,6 +183,26 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				id_person = int(update_csv(int(id_num)))
 				id_person_color = id_person % len(list_color)
 
+				# add line
+				if id_num not in ids:
+					newone = False
+					ii = 0  
+
+					while ii < 10: # Add a colon  
+						nx = llx1 + (llx2 - llx1) * ii/ 10. 
+						ny = lly1 + (lly2 - lly1) * ii/ 10. 
+						minx = min(bbox[0], bbox[2])
+						maxx = max(bbox[0], bbox[2])
+						miny = min(bbox[1], bbox[3])
+						maxy = max(bbox[1], bbox[3])
+						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
+							newone = True;
+							break
+						ii += 1  
+
+					if newone:
+						ids.append(id_num)
+
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
 							  list_color[id_person_color], thick//3)
 
@@ -191,10 +218,11 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 
 				dict[id_person].append((center_x, center_y))
 				#print id_person,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3]))
+                
 				for i in range(0, len(dict[id_person])):
 					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], thick // 5)
 					if i>0:
-						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 5)
+						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 2)
 
 				person_count[id_person] = person_count[id_person] + 1
 				# frame num = 200  10s
@@ -211,5 +239,9 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				# count the person
 				mycount = update_csv(0)
 				# show to UI
-				cv2.putText(imgcv, 'gong count: '+str(mycount), (10,70),0, 1e-3 * h, (0,0,255),thick//6)
+				cv2.putText(imgcv, 'deepsort: '+str(mycount), (10,10),0, 1e-3 * h, (0,0,255),thick//4)
+				cv2.putText(imgcv, 'linesort: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,0),thick//4)
+
+        lineThickness = 2
+        cv2.line(imgcv, (llx1, lly1), (llx2, lly2), (255, 0, 0), lineThickness)
 	return imgcv
