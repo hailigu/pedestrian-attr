@@ -284,7 +284,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				# set font
 				font = cv2.FONT_HERSHEY_TRIPLEX
 				# count the person
-				mycount = update_csv(0)
+				mycount = update_csv(0)+1
 
 				# show to UI
 				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
