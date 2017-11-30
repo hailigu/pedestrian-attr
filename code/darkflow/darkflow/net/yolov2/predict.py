@@ -21,11 +21,9 @@ dict = {}
 
 
 ids = []
+ids2 = []
+ids_box = []
 
-llx1 = 200
-llx2 = 1000
-lly1 = 600
-lly2 = 600
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -167,11 +165,11 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			if self.FLAGS.display or self.FLAGS.saveVideo:
 				global person_count
 				global dict
-				# SpringGreen1
-				# LightPink
+				global ids_box
+				# DarkSlateGray
 				# Crimson
 				# Purple
-				# Blue
+				# SkyBlue
 
 				# Cyan
 				# SeaGreen
@@ -190,14 +188,42 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
                 # Magenta4
                 # DarkOrange4
                 # RosyBrown4
-				list_color = [(0,255,127), (255,182,193),(128,0,128),(255, 0, 255),(0,0,255),
+				list_color = [(47,79,79), (255,182,193),(128,0,128),(255, 0, 255),(135, 206, 235),
 							  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128),
                               (119, 136, 153), (106, 90, 205), (102, 205, 170), (32 , 178, 170), (160, 82, 45),
                               (130, 130, 130), (255, 225, 255), (139, 0, 139), (139, 69, 0), (139, 105, 105)]
 				id_person = int(update_csv(int(id_num)))
 				id_person_color = id_person % len(list_color)
+				lineThickness = thick // 3
 
-				# add line
+				color_deep = (0, 0, 255)  # Red
+				color_line = (0, 255, 0)  # Green
+				color_box = (255, 0, 0)  # Blue
+
+
+				# draw box
+				quadrant_center = [(int(w / 4), int(h / 4)), (int(w * 3 / 4), int(h / 4)),
+								   (int(w * 3 / 4), int(h * 3 / 4)), (int(w / 4), int(h * 3 / 4))]
+				quadrant_1 = [(int(w / 2), 0), (int(w), 0), (int(w), int(h / 2)), (int(w / 2), int(h / 2))]
+				quadrant_2 = [(0, 0), (int(w / 2), 0), (int(0), int(h / 2)), (int(w / 2), int(h / 2))]
+				quadrant_3 = [(0, int(h / 2)), (int(w / 2), int(h / 2)), (int(w / 2), h), (0, int(h))]
+				quadrant_4 = [(int(w / 2), int(h / 2)), (int(w), int(h / 2)), (int(w), int(h)), (int(w / 2), int(h))]
+
+				quadrant = quadrant_center
+
+				cv2.line(imgcv, (quadrant[0]), (quadrant[1]), color_box, lineThickness)
+				cv2.line(imgcv, (quadrant[1]), (quadrant[2]), color_box, lineThickness)
+				cv2.line(imgcv, (quadrant[2]), (quadrant[3]), color_box, lineThickness)
+				cv2.line(imgcv, (quadrant[3]), (quadrant[0]), color_box, lineThickness)
+
+
+				# draw line
+				llx1 = int(w / 4)
+				lly1 = int(h*3 / 4)
+				llx2 = int(w*3 / 4)
+				lly2 = int(h*3 / 4)
+				cv2.line(imgcv, (llx1, lly1), (llx2, lly2), color_line, lineThickness)
+
 				if id_num not in ids:
 					newone = False
 					ii = 0  
@@ -212,7 +238,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						maxy = max(bbox[1], bbox[3])
 						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
 							newone = True;
-							cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], thick // 5)
+							cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], lineThickness)
 							break
 						ii += 1
 
@@ -229,25 +255,29 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						dict[i] = []
 						person_count.append(0)
 
-
 				center_x = (int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2)
-				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) )
+				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2)
 
 				dict[id_person].append((center_x, center_y))
-				#print id_person,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3]))
+
+				# judge center in quadrant
+				if id_person not in ids2:
+					if center_x > 0  and center_x < w / 2 and center_y > h/2 and center_y < h:
+						ids2.append(id_person)
+						dlist = list(set(ids2))
+						ids_box = sorted([int(i) for i in dlist])
 
 				for i in range(0, len(dict[id_person])):
-					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], thick // 5)
+					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], lineThickness)
 					if i>0:
-						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 2)
+						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], lineThickness)
 
 				person_count[id_person] = person_count[id_person] + 1
+
 				# frame num
 				if 	person_count[id_person]%10 == 0:
 					person_count[id_person] = 0
 					dict[id_person] = []
-
-				#cv2.putText(imgcv, id_num,(int(bbox[0]), int(bbox[1]) - 12),0, 1e-3 * h, (255,0,255),thick//6)
 
 				# show person id
 				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
@@ -257,9 +287,8 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				mycount = update_csv(0)
 
 				# show to UI
-				cv2.putText(imgcv, 'deepsort: '+str(mycount), (10,30),0, 1e-3 * h, (0,0,255),thick//4)
-				cv2.putText(imgcv, 'linesort: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,0),thick//4)
+				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
+				cv2.putText(imgcv, 'LineSort: '+str(len(ids)), (10,70),0, 1e-3 * h, color_line,lineThickness)
+				cv2.putText(imgcv, 'QuadSort: ' + str(len(ids_box)), (10, 110), 0, 1e-3 * h, color_box, lineThickness)
 
-        lineThickness = 2
-        cv2.line(imgcv, (llx1, lly1), (llx2, lly2), (255, 0, 0), lineThickness)
 	return imgcv
