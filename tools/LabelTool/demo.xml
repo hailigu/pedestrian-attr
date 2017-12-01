@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<?xml-stylesheet type='text/xsl' href='image_metadata_stylesheet.xsl'?>
+<dataset>
+<name>LabelTool dataset</name>
+<comment>Created by LabelTool.</comment>
+<images>
+  <image file='demo\00c4557f7d1e00854b52fb92e459d972a7fb57b3.jpg'>
+    <box top='33' left='294' width='187' height='228'/>
+    <box top='182' left='696' width='165' height='225'>
+      <label>0</label>
+    </box>
+  </image>
+  <image file='demo\00c52ff1e604e0599612102166db754fc9105fa7.jpg'>
+    <box top='42' left='234' width='113' height='123'>
+      <label>0</label>
+    </box>
+    <box top='81' left='725' width='119' height='131'>
+      <label>0</label>
+    </box>
+    <box top='20' left='885' width='100' height='126'>
+      <label>0</label>
+    </box>
+    <box top='283' left='9' width='489' height='209'>
+      <label>0</label>
+    </box>
+  </image>
+  <image file='demo\00d127fd291acd36d807584a6fcd564de4bb422f.jpg'>
+    <box top='37' left='280' width='89' height='95'/>
+  </image>
+  <image file='demo\00fe1abc797109e6d522a1a9a9daa461cd2511f5.jpg'>
+  </image>
+</images>
+</dataset>
