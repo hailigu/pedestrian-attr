@@ -16,16 +16,9 @@ from ...cython_utils.cy_yolo2_findboxes import box_constructor
 ds = True
 csvfilename = 'test.avi.csv'
 csvfile = CsvFile(csvfilename)
-person_count=[]
-dict = {}
-
-
+ll = [[13, 16], [1220, 10], [1180, 700], [10, 700], [13, 16]]
 ids = []
 
-llx1 = 250
-llx2 = 900
-lly1 = 600
-lly2 = 600
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -186,19 +179,28 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				# add line
 				if id_num not in ids:
 					newone = False
-					ii = 0  
+					uu = 0
+					while uu < len(ll) - 1:
+						startp = ll[uu]	
+						stopp = ll[uu + 1]
 
-					while ii < 10: # Add a colon  
-						nx = llx1 + (llx2 - llx1) * ii/ 10. 
-						ny = lly1 + (lly2 - lly1) * ii/ 10. 
-						minx = min(bbox[0], bbox[2])
-						maxx = max(bbox[0], bbox[2])
-						miny = min(bbox[1], bbox[3])
-						maxy = max(bbox[1], bbox[3])
-						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
-							newone = True;
-							break
-						ii += 1  
+						ii = 0  
+
+						while ii < 10: # Add a colon  
+							nx = startp[0] + (stopp[0] - startp[0]) * ii/ 10. 
+							ny = startp[1] + (stopp[1] - startp[1]) * ii/ 10. 
+							minx = min(bbox[0], bbox[2])
+							maxx = max(bbox[0], bbox[2])
+							miny = min(bbox[1], bbox[3])
+							maxy = max(bbox[1], bbox[3])
+							if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
+								newone = True;
+								break
+							ii += 1  
+
+						if newone:
+							break;
+						uu += 1
 
 					if newone:
 						ids.append(id_num)
@@ -240,8 +242,12 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				mycount = update_csv(0)
 				# show to UI
 				cv2.putText(imgcv, 'deepsort: '+str(mycount), (10,10),0, 1e-3 * h, (0,0,255),thick//4)
-				cv2.putText(imgcv, 'linesort: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,0),thick//4)
+	cv2.putText(imgcv, 'linesort: '+str(len(ids)), (10,70),0, 1e-3 * h, (0,0,0),thick//4)
 
-        lineThickness = 2
-        cv2.line(imgcv, (llx1, lly1), (llx2, lly2), (255, 0, 0), lineThickness)
+	uu = 0
+	while uu < len(ll) -1:
+	        lineThickness = 2
+        	cv2.line(imgcv, (ll[uu][0], ll[uu][1]), (ll[uu+1][0], ll[uu+1][1]), (0,255,0), lineThickness)
+		uu += 1
+
 	return imgcv
