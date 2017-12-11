@@ -11,6 +11,7 @@ import os
 import csv
 
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
+img_num = 0
 
 def build_train_op(self):
     self.framework.loss(self.out)
@@ -173,6 +174,11 @@ def camera(self):
                     videoWriter.write(postprocessed)
                 if self.FLAGS.display :
                     cv2.imshow('', postprocessed)
+		global img_num
+		img_num += 1
+		img_name = "png/%d.png" %img_num
+		cv2.imwrite(img_name, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+
             # Clear Buffers
             buffer_inp = list()
             buffer_pre = list()
