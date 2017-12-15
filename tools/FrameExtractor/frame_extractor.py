@@ -5,11 +5,12 @@
 # @File    : frame_extractor.py
 import argparse
 import glob
+import logging
+import math
 import os
+import random
 import sys
 import time
-import math
-import random
 from collections import namedtuple
 
 import cv2
@@ -48,59 +49,109 @@ def get_dirs(dir):
     return dirs
 
 
-def show_message(message, stop=False):
-    print (message)
+def show_message(message,log, stop=False):
+    if stop:
+        message += "\n\n\n\n"
+    if log:
+        log.info(message)
+    else:
+        print (message)
     if stop:
         sys.exit(0)
 
 
 def frame_extractor(args):
+    logging.basicConfig()
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    fh = logging.FileHandler(args.log_file)
+    logger.addHandler(fh)
     if not os.path.isdir(args.source_dir):
-        show_message('source_dir {} is incorrect'.format(args.source_dir), True)
+        show_message('source_dir {} is incorrect'.format(args.source_dir),logger, True)
     if not os.path.exists(args.save_root_dir):
         os.mkdir(args.save_root_dir)
     files = get_files(args.source_dir,args.search_pattern,args.recursive)
     if len(files) == 0:
-        show_message("there's no {} file in directory {} ".format(args.search_pattern,args.source_dir), True)
+        show_message("there's no {} file in directory {} ".format(args.search_pattern,args.source_dir),logger, True)
     for f in files:
-        show_message('video to be extracted  {}'.format(os.path.basename(f)))
+        show_message('video  path {}'.format(os.path.dirname(f)), logger)
         reader = cv2.VideoCapture(f)
-        if reader is None:
-            show_message('error opening video {}'.format(os.path.basename(f)), True)
-        # fps = reader.get(cv2.CAP_PROP_FPS)
-        # size = (int(reader.get(cv2.CAP_PROP_FRAME_WIDTH)), int(reader.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        original_frame_count = int(reader.get(cv2.CAP_PROP_FRAME_COUNT))
-        show_message('original frame count  {}'.format(original_frame_count))
+
+        if not reader :
+            show_message('error opening video {}'.format(os.path.basename(f)),logger)
+            continue
+        show_message('video to be extracted  {}'.format(os.path.basename(f)),logger)
+
+        file_name, file_ext = get_file_name_and_ext(f)
         start_index = 0
-        end_index = original_frame_count - 1
-        if args.skip_ratio:
+        end_index = 0
+        original_frame_count = 0
+
+        if file_ext.lower() == '.h264':
+            show_message('fetching {} frame count, It may take some time'.format(os.path.basename(f)), logger)
+            while (True):
+                (grabbed, frame) = reader.read()
+                if not grabbed:
+                    show_message('End of video stream reached', logger)
+                    break
+                original_frame_count +=1
+            show_message('video {} has {} frames'.format(os.path.basename(f),original_frame_count), logger)
+        else:
+            # fps = reader.get(cv2.CAP_PROP_FPS)
+            # size = (int(reader.get(cv2.CAP_PROP_FRAME_WIDTH)), int(reader.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+            original_frame_count = int(reader.get(cv2.CAP_PROP_FRAME_COUNT))
+            if original_frame_count <= 0:
+                show_message('file {} is not a valid video, skipped\n\n\n\n'.format(os.path.basename(f)), logger)
+                continue
+            show_message('original frame count  {}'.format(original_frame_count), logger)
+
+        extracted_count = int(math.ceil(original_frame_count * args.extract_ratio))
+
+        if args.skip_ratio > 0:
             frame_count_after_skip = int(math.ceil(original_frame_count * (1 - args.skip_ratio * 2)))
             start_index = int(math.floor(original_frame_count * args.skip_ratio)) - 1
             end_index = original_frame_count - int(math.floor(original_frame_count * args.skip_ratio)) - 1
-            show_message('frame count after skipped  {}'.format(frame_count_after_skip))
-        extracted_count = int(math.ceil(original_frame_count * args.extract_ratio))
-        if end_index - start_index < extracted_count:
-            show_message('value of skip-radio is too big', True)
-        show_message('frame start to be extracted  {}'.format(start_index))
-        show_message('frame end to be extracted  {}'.format(end_index))
-        show_message('frame count to be extracted  {}'.format(extracted_count))
+            show_message('frame count after skipped  {}'.format(frame_count_after_skip),logger)
+            if frame_count_after_skip < extracted_count:
+                show_message('value of skip-radio is too big {} for '.format(os.path.basename(f)), logger)
+        else:
+            end_index = original_frame_count - 1
+
+        show_message('frame start to be extracted  {}'.format(start_index),logger)
+        show_message('frame end to be extracted  {}'.format(end_index),logger)
+        show_message('frame count to be extracted  {}'.format(extracted_count),logger)
         frame_indexes = sorted(random.sample(np.arange(start_index, end_index), extracted_count))
         # print (frame_indexes)
-        show_message('start to extract frame from{}'.format(os.path.basename(f)))
-        file_name, _ = get_file_name_and_ext(f)
         save_path = os.path.join(args.save_root_dir, os.path.basename(file_name))
+
         if not os.path.exists(save_path):
             os.mkdir(save_path)
-        for frame_index in frame_indexes:
-            # https://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html#cv.SetCaptureProperty
-            reader.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-            # reader.set(cv2.CAP_PROP_POS_MSEC, frame_index)
-            (grabbed, frame) = reader.read()
-            if not grabbed:
-                show_message('End of video stream reached')
-            cv2.imwrite(os.path.join(save_path, '{}_{}.jpg'.format(file_name, frame_index)), frame)
-            show_message('extracting from {} at index {}'.format(file_name, frame_index))
+
+        if file_ext.lower() == '.h264':
+            index_count = 0
+            reader = cv2.VideoCapture(f)
+            while (True):
+                (grabbed, frame) = reader.read()
+                if not grabbed:
+                    show_message('End of video stream reached', logger)
+                    break
+                if frame_indexes.count(index_count) > 0:
+                    cv2.imwrite(os.path.join(save_path, '{}_{}.jpg'.format(file_name, index_count)), frame)
+                    show_message('extracting from {} at index {}'.format(os.path.basename(f), index_count), logger)
+                index_count += 1
+        else:
+            for frame_index in frame_indexes:
+                # https://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html#cv.SetCaptureProperty
+                reader.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+                # reader.set(cv2.CAP_PROP_POS_MSEC, frame_index)
+                (grabbed, frame) = reader.read()
+                if not grabbed:
+                    show_message('End of video stream reached', logger)
+                cv2.imwrite(os.path.join(save_path, '{}_{}.jpg'.format(file_name, frame_index)), frame)
+                show_message('extracting from {} at index {}'.format(os.path.basename(f), frame_index), logger)
+
         reader.release()
+        show_message('finished extracting from {} \n\n\n\n'.format(os.path.basename(f)), logger)
 
 
 def parse_args():
@@ -112,11 +163,14 @@ def parse_args():
     parser.add_argument('--ratio', dest='extract_ratio', type=float, default=0.1,
                         help='indicate frame count to be extracted divided by video frame count')
     parser.add_argument('--skip-ratio', dest='skip_ratio', type=float, default=0.0,
-                        help='indicate frame count to be skipped at the start and the end of video divided by video frame count')
+                        help='indicate frame count to be skipped at the start and the end of video divided by video '
+                             'frame count')
     parser.add_argument('--recursive', dest='recursive', type=bool, default=True,
                         help='search videos in sub directory')
-    parser.add_argument('--search-pattern', dest='search_pattern', type=str, default='*.mp4',
-                        help='search pattern for video files *.mp4 *.*')
+    parser.add_argument('--search-pattern', dest='search_pattern', type=str, default='*.*',
+                        help='search pattern for video files *.*')
+    parser.add_argument('--log', dest='log_file', type=str, default="log.txt",
+                        help='save log to file')
     return parser.parse_args()
 
 
