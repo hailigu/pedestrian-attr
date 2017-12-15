@@ -59,9 +59,9 @@ def frame_extractor(args):
         show_message('source_dir {} is incorrect'.format(args.source_dir), True)
     if not os.path.exists(args.save_root_dir):
         os.mkdir(args.save_root_dir)
-    files = get_files(args.source_dir)
+    files = get_files(args.source_dir,args.search_pattern,args.recursive)
     if len(files) == 0:
-        show_message("there's no file in directory {}".format(args.source_dir), True)
+        show_message("there's no {} file in directory {} ".format(args.search_pattern,args.source_dir), True)
     for f in files:
         show_message('video to be extracted  {}'.format(os.path.basename(f)))
         reader = cv2.VideoCapture(f)
@@ -113,6 +113,10 @@ def parse_args():
                         help='indicate frame count to be extracted divided by video frame count')
     parser.add_argument('--skip-ratio', dest='skip_ratio', type=float, default=0.0,
                         help='indicate frame count to be skipped at the start and the end of video divided by video frame count')
+    parser.add_argument('--recursive', dest='recursive', type=bool, default=True,
+                        help='search videos in sub directory')
+    parser.add_argument('--search-pattern', dest='search_pattern', type=str, default='*.mp4',
+                        help='search pattern for video files *.mp4 *.*')
     return parser.parse_args()
 
 
