@@ -16,8 +16,8 @@ from ...cython_utils.cy_yolo2_findboxes import box_constructor
 
 
 ds = True
-csvfilename = '8.h264.csv'
-csvfile = CsvFile(csvfilename)
+#csvfilename = '1.h264.csv'
+#csvfile = CsvFile(csvfilename)
 
 #line check first
 #line check: line points
@@ -241,14 +241,15 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				csv.writerow([frame_id,id_num,int(bbox[0]),int(bbox[1]),int(bbox[2])-int(bbox[0]),int(bbox[3])-int(bbox[1])])
 				csv_file.flush()
 
-			if self.FLAGS.display or self.FLAGS.saveVideo:
-				id_person = int(update_csv(int(id_num)))
+			if self.FLAGS.display or self.FLAGS.saveVideo or self.FLAGS.counter:
+				#id_person = int(update_csv(int(id_num)))
+				id_person = int(id_num)
 				id_person_color = id_person % len(list_color)
 
 				#display bbox
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
 						        (0,255,0), thick//3)
-				cv2.putText(imgcv, str(update_csv(int(id_num))), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, 							(255, 0, 255), thick // 6)
+				#cv2.putText(imgcv, str(update_csv(int(id_num))), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, 							(255, 0, 255), thick // 6)
 				#id
 				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
 

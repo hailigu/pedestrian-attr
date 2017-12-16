@@ -9,8 +9,32 @@ import sys
 import cv2
 import os
 import csv
+import subprocess as sp
+import numpy
+
+from PIL import Image
+
+flag_pipe = True
+
 
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
+
+cmd_out1 = ['ffmpeg',
+    '-y',
+    '-f', 'rawvideo',
+    '-vcodec','rawvideo',
+    '-pix_fmt', 'bgr24',
+    '-s', '1920x1080',
+    '-i', '-',
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-preset', 'ultrafast',
+    '-f', 'flv',
+    'rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com']
+
+
+if flag_pipe:
+    pipe = sp.Popen(cmd_out1, stdin=sp.PIPE)
 
 def build_train_op(self):
     self.framework.loss(self.out)
@@ -173,6 +197,10 @@ def camera(self):
                     videoWriter.write(postprocessed)
                 if self.FLAGS.display :
                     cv2.imshow('', postprocessed)
+                if flag_pipe:
+                    im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                    pipe.stdin.write(im.tobytes())
+
             # Clear Buffers
             buffer_inp = list()
             buffer_pre = list()
@@ -195,6 +223,9 @@ def camera(self):
     camera.release()
     if self.FLAGS.display :
         cv2.destroyAllWindows()
+    if flag_pipe: 
+	pipe.stdin.close()
+        pipe.wait()
 
 def to_darknet(self):
     darknet_ckpt = self.darknet
