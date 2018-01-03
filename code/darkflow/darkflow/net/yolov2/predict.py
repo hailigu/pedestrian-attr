@@ -14,9 +14,6 @@ from ...cython_utils.cy_yolo2_findboxes import box_constructor
 
 
 ds = True
-csvfilename = 'test.avi.csv'
-csvfile = CsvFile(csvfilename)
-person_count=[]
 dict = {}
 
 
@@ -24,10 +21,35 @@ ids = []
 ids2 = []
 ids_box = []
 
-flag_display_line = False
-flag_display_box = True
-flag_display_tail = False
+flag_display_line = True
+flag_display_box = False
 
+# DarkSlateGray
+# Crimson
+# Purple
+# SkyBlue
+
+# Cyan
+# SeaGreen
+# Yellow
+# DarkOrange
+# Gray
+
+# LightSlateGray
+# SlateBlue
+# MediumAquamarine
+# LightSeaGreen
+# Sienna
+
+# grey51
+# Thistle1
+# Magenta4
+# DarkOrange4
+# RosyBrown4
+list_color = [(47,79,79), (255,182,193),(128,0,128),(255, 0, 255),(135, 206, 235),
+	     (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128),
+             (119, 136, 153), (106, 90, 205), (102, 205, 170), (32 , 178, 170), (160, 82, 45),
+             (130, 130, 130), (255, 225, 255), (139, 0, 139), (139, 69, 0), (139, 105, 105)]
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -67,16 +89,6 @@ def extract_boxes(self,new_im):
             else : cont.append([x, y, w, h])
     return cont
 
-def update_csv(count):
-	with open(csvfilename, 'rb') as csvfile:
-		reader = csv.DictReader(csvfile)
-		column = [row['track_id'] for row in reader]
-		blist = list(set(column))
-		clist = sorted([int(i) for i in blist])
-	if count == 0:
-		return len(clist)
-	else:
-		return clist.index(count)
 
 def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None,encoder=None,tracker=None, save = False):
 	"""
@@ -170,33 +182,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				global person_count
 				global dict
 				global ids_box
-				# DarkSlateGray
-				# Crimson
-				# Purple
-				# SkyBlue
-
-				# Cyan
-				# SeaGreen
-				# Yellow
-				# DarkOrange
-				# Gray
-
-                # LightSlateGray
-                # SlateBlue
-                # MediumAquamarine
-                # LightSeaGreen
-                # Sienna
-
-                # grey51
-                # Thistle1
-                # Magenta4
-                # DarkOrange4
-                # RosyBrown4
-				list_color = [(47,79,79), (255,182,193),(128,0,128),(255, 0, 255),(135, 206, 235),
-							  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128),
-                              (119, 136, 153), (106, 90, 205), (102, 205, 170), (32 , 178, 170), (160, 82, 45),
-                              (130, 130, 130), (255, 225, 255), (139, 0, 139), (139, 69, 0), (139, 105, 105)]
-				id_person = int(update_csv(int(id_num)))
+				id_person = int(id_num) #int(update_csv(int(id_num)))
 				id_person_color = id_person % len(list_color)
 				lineThickness = thick // 3
 
@@ -220,9 +206,9 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 								  color_box, lineThickness)
 
 				# draw line
-				llx1 = int(w / 4)
-				lly1 = int(h*3 / 4)
-				llx2 = int(w*3 / 4)
+				llx1 = int(w*3 / 8)
+				lly1 = int(h / 3)
+				llx2 = int(w)
 				lly2 = int(h*3 / 4)
 
 				if flag_display_line:
@@ -232,7 +218,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 					newone = False
 					ii = 0  
 
-                    # the width of box, will be > line/10  (900-250)/10 = 65, the same to height
+                    			# the width of box, will be > line/10  (900-250)/10 = 65, the same to height
 					while ii < 10: # Add a colon  
 						nx = llx1 + (llx2 - llx1) * ii/ 10. 
 						ny = lly1 + (lly2 - lly1) * ii/ 10. 
@@ -254,16 +240,10 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
 							  list_color[id_person_color], thick//3)
 
-				# init
-				if len(dict) == 0:
-					for i in range(0, 99999):
-						dict[i] = []
-						person_count.append(0)
 
 				center_x = (int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2)
 				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2)
 
-				dict[id_person].append((center_x, center_y))
 
 				# judge center in quadrant
 				if id_person not in ids2:
@@ -272,18 +252,6 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 						dlist = list(set(ids2))
 						ids_box = sorted([int(i) for i in dlist])
 
-				if flag_display_tail:
-					for i in range(0, len(dict[id_person])):
-						cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], lineThickness)
-						if i>0:
-							cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], lineThickness)
-
-				person_count[id_person] = person_count[id_person] + 1
-
-				# frame num for the len of tail
-				if 	person_count[id_person]%10 == 0:
-					person_count[id_person] = 0
-					dict[id_person] = []
 
 				# show person id
 				cv2.putText(imgcv, str(id_person+1), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
@@ -291,7 +259,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 				font = cv2.FONT_HERSHEY_TRIPLEX
 
 				# count the person
-				mycount = update_csv(0)
+				mycount = 0 #update_csv(0)
 
 				# show to UI
 				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
