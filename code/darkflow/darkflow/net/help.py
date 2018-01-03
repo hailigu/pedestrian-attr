@@ -9,65 +9,8 @@ import sys
 import cv2
 import os
 import csv
-import subprocess as sp
-import numpy
-from threading import Thread
-from PIL import Image
-
-# add by gongjia
-jpg_num = 0
-
-thread_init = False
-# push cv2.img to memory, then to rtmp
-flag_pipe = False
-# push png to rtmp
-flag_png = False
-
-frame_test_num = 100
 
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
-
-cmd_out = ['ffmpeg', '-y',
-           '-f', 'image2pipe',
-           '-framerate', '1',
-           '-i', '-',  # Indicated input comes from pipe
-           '-c:v', 'libx264',
-           '-vf', 'format=yuv420p',
-           '-r', '25',
-           'video.flv']
-           #'rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com'] #'video.flv']
-
-
-#ffmpeg -loop 0 -f image2 -i png/%d.png -vcodec libx264 -pix_fmt yuv420p -r 10 -f flv rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com
-cmd_png = ['ffmpeg', '-y',
-           '-loop', '1',
-           '-f', 'image2',
-           '-i', 'png/%d.png',
-           '-vcodec', 'libx264',  # Indicated input comes from pipe
-           '-pix_fmt', 'yuv420p',
-           '-r', '10',
-           '-f', 'flv',
-           'rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com']
-
-if flag_pipe:
-    pipe = sp.Popen(cmd_out, stdin=sp.PIPE)
-
-if flag_png:
-    pipe = sp.Popen(cmd_png, stdin=sp.PIPE)
-
-class FFmpegVideoPush:
-    def __init__(self):
-        print "init..........."
-
-    def ffmpeg_cmd(self):
-        print "ffmpeg_cmd..........."
-        if pipe.returncode != 0:
-            sp.call(cmd_png)
-            #raise sp.CalledProcessError(pipe.returncode, cmd_png)
-
-    def pipclose(self):
-        pipe.stdin.close()
-        pipe.wait()
 
 def build_train_op(self):
     self.framework.loss(self.out)
@@ -230,34 +173,6 @@ def camera(self):
                     videoWriter.write(postprocessed)
                 if self.FLAGS.display :
                     cv2.imshow('', postprocessed)
-                global thread_init
-                if flag_png:
-                    global jpg_num
-                    jpg_num += 1
-                    print jpg_num
-                    image_name = "png/%d.png" %jpg_num
-                    # 9 zip higher
-                    if jpg_num < frame_test_num*2:  # MAX png
-                        cv2.imwrite(image_name, img, [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
-
-                    if jpg_num == frame_test_num and not thread_init:
-                        push = FFmpegVideoPush()
-                        thr = Thread(target=push.ffmpeg_cmd)
-                        thr.start()
-                        thread_init = True
-
-                    if jpg_num == frame_test_num*2:
-                        push.pipclose()
-
-                if flag_pipe:
-                    if not thread_init:
-                        push = FFmpegVideoPush()
-                        thr = Thread(target=push.ffmpeg_cmd)
-                        thr.start()
-                        thread_init = True
-                    im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-                    im.save(pipe.stdin, 'PNG')
-
             # Clear Buffers
             buffer_inp = list()
             buffer_pre = list()
