@@ -52,11 +52,31 @@
     		paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
     	});
     });
+    function mouseMove(ev) {
+    	Ev = ev || window.event;
+    	var mousePos = mouseCoords(ev);
+    	document.getElementById("xxx").value = mousePos.x;
+    	document.getElementById("yyy").value = mousePos.y;
+    }
+    function mouseCoords(ev) {
+    	if (ev.pageX || ev.pageY) {
+    		return {
+    			x: ev.pageX,
+    			y: ev.pageY
+    		};
+    	}
+    	return {
+    		x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+    		y: ev.clientY + document.body.scrollTop - document.body.clientTop
+    	};
+    }
+    document.onmousemove = mouseMove;
     </script>
 </head>
 <body> 
     <div id="header">
             <h1 id="title">划线界面</h1>
+            鼠标X轴: <input id=xxx type=text> 鼠标Y轴: <input id=yyy type=text>
             <button id="clear" value="clear">清除</button>
             <div id="footer"></div>
         </div>
