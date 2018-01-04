@@ -20,7 +20,7 @@ done
 if [ $filesize -gt $maxsize ]
 then
     echo "$filesize > $maxsize"
-    tmpfile=media"`date +%Y-%m-%d_%H:%M:%S`".flv
+    tmpfile=media"`date +%Y-%m-%d_%H:%M:%S`_"$filename
     cp $filename $tmpfile
     sleep 1
     ffmpeg -re -i $tmpfile -vcodec libx264  -preset ultrafast -f flv rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com
