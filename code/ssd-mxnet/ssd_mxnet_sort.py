@@ -103,7 +103,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 color = (0, 255, 0)
 class_list = ['__nothing__', 'person', ]
 
-model_ = 'deploy_ssd_resnet50_people1785'
+model_ = 'deploy_ssd_resnet_people_3590'
 prefix = './models/' + model_
 epoch = 0
 cls_id = 1
@@ -113,7 +113,7 @@ mean_pixels = (123, 117, 104)
 batch_size = 1
 context = mx.gpu(args.gpu_index)
 
-cv2.namedWindow("Video")
+#cv2.namedWindow("Video")
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 file_name, file_ext = get_file_name_and_ext(args.video)
@@ -157,7 +157,7 @@ while True:
         print("configured number of frames written to video.")
         cap.release()
         vw.release()
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
         break
 
     (grabbed, frame) = cap.read()
@@ -233,16 +233,16 @@ while True:
                       (int(tracks[i][2]), int(tracks[i][3])),
                       (255, 0, 0), 2)
 
-    cv2.imshow("Video", original_frame)
+    #cv2.imshow("Video", original_frame)
     vw.write(original_frame)
 
     k = cv2.waitKey(1)
     if k == 27:
         cap.release()
         vw.release()
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
         break
 
 cap.release()
 vw.release()
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
