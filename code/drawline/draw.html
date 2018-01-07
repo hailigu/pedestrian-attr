@@ -1,87 +1,170 @@
 <!doctype html>
 <html>
 <head>
-    <title>划线</title>
-    <meta http-equiv="x-ua-compatible" content="ie=9"/>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script type="text/javascript">
-    var paper;
-    $(function () {
-        xOffset =  50
-        yOffset =  50
-        width   =  800
-        height  =  600
-    	paper = new Raphael("drawline", width, height);
-    	c = paper.rect(xOffset, yOffset, width, height).attr({
-    			fill: "#29ECC7",
-    			stroke: "none",
-    			opacity: .8
-    		});
+<title>划线</title>
+<meta http-equiv="x-ua-compatible" content="ie=9"/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<script src="//cdn.bootcss.com/raphael/2.2.7/raphael.min.js"></script>
+<script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+ var paper;
+ var baseUrl = "http://192.168.8.1:5001/";
+ var frameImage = baseUrl + "/all/frame.jpg"
+ 
+ //just format number
+ function fomatNumber(num, pos) {
+ 	return Math.round(num * Math.pow(10, pos)) / Math.pow(10, pos);
+ }
+ 
+ $(function() {
+     
+     //technically, it should be equal to width && height of frame image
+     width = 959
+     height = 540
+     
+     frameX = Math.ceil($("#drawline").offset().left);
+     frameY = Math.ceil($("#drawline").offset().top);
+     
+     xOffset = 0
+     yOffset = 0
+     
+     paper = new Raphael("drawline", width, height);     
+     c = paper.rect(xOffset, yOffset, width, height).attr({
+         fill: "#29ECC7",
+         stroke: "blue",
+         opacity: .1,
+     });
+     
+     frameW = Math.ceil($("#drawline").width());
+     frameH = Math.ceil($("#drawline").height());
 
-    	startPoint = {}
-    	endPoint = {}
+     startPoint = {}
+     endPoint = {}     
 
-    	startDragFunction = function (x, y, e) {
-    		startPoint.x = x ;
-    		startPoint.y = y ;
+     startDragFunction = function(x, y, e) {
+         startPoint.x = x;
+         startPoint.y = y;
 
-    	}
-    	endDragFunction = function (x, y, e) {
-            x1 = startPoint.x;
-            y1 = startPoint.y;
-            x2 = endPoint.x + x1;
-            y2 = endPoint.y + y1;
-    		paper.path("M" + x1 + "," + y1 + "L" + x2 + "," + y2);
-    		alert(startPoint.x.toString() + '   ' + startPoint.y.toString() + '   ' + (startPoint.x + endPoint.x).toString() + '   ' + (startPoint.y + endPoint.y).toString())
-    	}
-    	draggingFunction = function (x, y) {
-    		endPoint.x = x ;
-    		endPoint.y = y ;
+     }
 
-    	}
-    	paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
-    	$("#clear").click(function () {
-    		paper.clear();
-    		c = paper.rect(xOffset, yOffset, width, height).attr({
-    				fill: "#29ECC7",
-    				stroke: "none",
-    				opacity: .8
-    			});
-    		paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
-    	});
-    });
-    function mouseMove(ev) {
-    	Ev = ev || window.event;
-    	var mousePos = mouseCoords(ev);
-    	document.getElementById("xxx").value = mousePos.x;
-    	document.getElementById("yyy").value = mousePos.y;
+     //http://dmitrybaranovskiy.github.io/raphael/reference.html#Element.drag   onmove, onstart, onend
+     draggingFunction = function(dx, dy, x, y) {
+         endPoint.x = x;
+         endPoint.y = y;
+     }
+
+     endDragFunction = function(x, y, e) {
+
+         x1 = startPoint.x;
+         y1 = startPoint.y;
+
+         x2 = endPoint.x;
+         y2 = endPoint.y;
+
+         //http://dmitrybaranovskiy.github.io/raphael/reference.html#Paper.path
+         //absolute
+         paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2).attr({
+             stroke: "red"
+         });
+         
+         //relative
+         //paper.path("m" + (x1 - frameX) + " " + (y1 - frameY) + "l" + (x2 - frameX) + " " + (y2 - frameY)).attr({stroke: "blue"});
+
+         //debug
+         //console.log('FrameXYWH  ' + frameX + ',' + frameY + ',' + frameW + ',' + frameH)
+         //console.log('absolute (x1,y1)=(' + (x1) + ',' + (y1) + '),(x2,y2)=(' + x2 + ',' + y2 + ')')
+         //console.log('relative (x1,y1)=(' + (x1 - frameX) + ',' + (y1 - frameY) + '),(x2,y2)=(' + (x2 - frameX) + ',' + (y2 - frameY) + ')')
+         $("#points").val(fomatNumber((x1 - frameX)/frameW,6) + "," + fomatNumber((y1 - frameY)/frameH,6) + "," + fomatNumber((x2 - frameX)/frameW,6)  + "," + fomatNumber((y2 - frameY)/frameH,6));
+         $("#real-points").val((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY));
+     }
+
+     paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
+
+     $("#clear").click(function() {
+         paper.clear();
+         c = paper.rect(xOffset, yOffset, width, height).attr({
+             fill: "#29ECC7",
+             stroke: "blue",
+             opacity: .1
+         });
+         paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
+     });
+     
+
+     $("#getFrameXYWH").click(function() {
+         $("#frameXYWH").val(frameX + "," + frameY + "," + frameW + "," + frameH);
+     });
+ });
+
+ function mouseMove(ev) {
+     Ev = ev || window.event;
+     var mousePos = mouseCoords(ev);
+     document.getElementById("mouseX").value = mousePos.x;
+     document.getElementById("mouseY").value = mousePos.y;
+ }
+
+ function mouseCoords(ev) {
+     if (ev.pageX || ev.pageY) {
+         return {
+             x: ev.pageX,
+             y: ev.pageY
+         };
+     }
+     return {
+         x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+         y: ev.clientY + document.body.scrollTop - document.body.clientTop
+     };
+ }
+
+ document.onmousemove = mouseMove;
+
+ function getFrameXYWH() {
+     alert("x:" + $("#drawline").offset().left + ",y:" + $("#drawline").offset().top);
+ }
+ 
+ function postPoints() {
+    $.post(baseUrl + "set_points", {
+            vid: $('#vid').val(),
+            points: $("#points").val()
+        },
+        function(data) {
+            //var obj = jQuery.parseJSON(data)
+            //alert(obj.results.result[0])
+            $("#results").html(data);
+        },
+        "text");
+}
+ 
+ function checkForm() {
+    if ($("#points").val() == "") {        
+        alert("请先划线再提交！")
+        $("#points").focus;        
+        return false;
     }
-    function mouseCoords(ev) {
-    	if (ev.pageX || ev.pageY) {
-    		return {
-    			x: ev.pageX,
-    			y: ev.pageY
-    		};
-    	}
-    	return {
-    		x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
-    		y: ev.clientY + document.body.scrollTop - document.body.clientTop
-    	};
-    }
-    document.onmousemove = mouseMove;
-    </script>
+    postPoints();
+}
+</script>
+
 </head>
-<body> 
-    <div id="header">
-            <h1 id="title">划线界面</h1>
-            鼠标X轴: <input id=xxx type=text> 鼠标Y轴: <input id=yyy type=text>
-            <button id="clear" value="clear">清除</button>
-            <div id="footer"></div>
+<body>     
+    <div id="bodyArea">
+        <div id="drawline" style="float:left;background-image:url(/all/frame.jpg);background-repeat:no-repeat;width:auto;height:auto;margin:0;"></div>
+        <br />
+        <div id="menu" style="margin:0">
+                <h3>按住鼠标左键按需拖动即可,可多次划线,提交时仅应用最后一次划线端点坐标</h3>
+                鼠标X: <input id="mouseX" type="text"> 鼠标Y: <input id="mouseY" type="text">
+                 XYWH: <input id="frameXYWH" type="text">
+                       <input id="getFrameXYWH" type="button" value="获取XYWH"/>
+                       <button id="clear" value="clear"  onclick="return false;">重新划</button><br /><br />
+                       <input id="real-points" type="text" style="margin:5px 0px 0px 20px;" size="105">
+                <form id="postform" name="postform" method="post" action="">                    
+                    <input id="points" type="text" style="margin:5px 0px 0px 20px;" size="105">
+                    <input id="vid" value="3" type="hidden">
+                    <button id="doPost" type="button" value="submit" onclick="return checkForm();">提交应用</button>
+                </form>
+                <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
         </div>
-    <div id="drawline">
-       
+        
     </div>
 </body>
 </html>
