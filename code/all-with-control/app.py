@@ -78,6 +78,34 @@ def index():
 
 
 
+# list videos
+@app.route('/list_videos', methods=['GET', 'POST'])
+def list_videos():
+    videos_frames = list_videos_and_frames(VIDEO_ROOT, True)
+    if not videos_frames:
+        return make_result('', 'specified video directory does not exist.', 1)
+    return make_result(videos_frames)
+
+
+# extract video frame
+@app.route('/extract_frame', methods=['GET', 'POST'])
+def extract_frame():
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    # It will extract frame randomly when no frame index specified
+    frame_index = parse_args('index', -1)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    video_frame = extract_video_frame(video_path, frame_index, True)
+    return make_result(video_frame)
+
+
+
 
 
 if __name__ == "__main__":
