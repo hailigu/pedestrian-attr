@@ -18,6 +18,9 @@ from flask import request, jsonify, json
 UTC_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 TZ = pytz.timezone('Asia/Shanghai')
 
+# just for logger
+logging.basicConfig()
+logger = logging.getLogger()
 
 
 # In order to handle all situations friendly, we response data
@@ -115,5 +118,9 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-
+# init logger for apps
+def init_logger(log_file, level=logging.INFO):
+    logger.setLevel(level)
+    fh = logging.FileHandler(log_file)
+    logger.addHandler(fh)
 

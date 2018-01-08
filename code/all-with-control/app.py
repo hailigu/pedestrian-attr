@@ -35,7 +35,10 @@ app.config['DEBUG'] = True  # False
 @app.before_first_request
 def init():
     click.secho(u'preserved for something before first request', fg='green')
-
+    # we should use correct log level for better performance
+    # when deployed in production environment
+    init_logger(LOG_FILE_PATH, logging.INFO)
+    logger.info('app is starting now')
 
 
 # this action will be executed before each request
