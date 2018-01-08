@@ -76,3 +76,64 @@ def list_videos_and_frames(dir_name, for_url=False):
     return videos_frames
 
 
+# set line points obtained from front page
+def set_line_points(file_name, x1, y1, x2, y2):
+    cap = cv2.VideoCapture(file_name)
+    video_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    video_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    cap.release()
+
+    f_name, f_ext = get_file_name_and_ext(file_name)
+
+    # transfer relative to absolute
+    x1 = int(float(x1)*video_width)
+    y1 = int(float(y1)*video_height)
+    x2 = int(float(x2)*video_width)
+    y2 = int(float(y2)*video_height)
+
+    # print(x1, y1, x2, y2)
+    conf = config.ConfigParser()
+    points_conf_path = os.path.join(os.path.dirname(file_name), '{}_point.ini'.format(f_name))
+
+    # we also write width and height
+    if os.path.exists(points_conf_path):
+        conf.read(points_conf_path)
+        if conf.has_option('video', 'points'):
+            conf.set('video', 'points', '{},{},{},{}'.format(x1, y1, x2, y2))
+            conf.set('video', 'size', '{},{}'.format(video_width, video_height))
+        else:
+            conf.add_section('video')
+            conf.set('video', 'points', '{},{},{},{}'.format(x1, y1, x2, y2))
+            conf.set('video', 'size', '{},{}'.format(video_width, video_height))
+    else:
+        conf.add_section('video')
+        conf.set('video', 'points', '{},{},{},{}'.format(x1, y1, x2, y2))
+        conf.set('video', 'size', '{},{}'.format(video_width, video_height))
+
+    with open(points_conf_path, 'w') as configfile:
+        conf.write(configfile)
+    return x1, y1, x2, y2
+
+
+
+# just get points, should be invoked after set_line_points
+def get_line_points(file_name):
+    f_name, f_ext = get_file_name_and_ext(file_name)
+    conf = config.ConfigParser()
+    points_conf_path = os.path.join(os.path.dirname(file_name), '{}_point.ini'.format(f_name))
+    if not os.path.exists(points_conf_path):
+        return False
+    conf.read(points_conf_path)
+    points = conf.get('video', 'points')
+    real_points = points.split(',')
+    return int(real_points[0]), int(real_points[1]), int(real_points[2]), int(real_points[3])
+
+
+# currently just hard code
+def get_video_path_by_id(vid, video_root):
+    return os.path.join(video_root, vid + '.mp4')
+
+
+
+
+

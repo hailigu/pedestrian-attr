@@ -77,7 +77,6 @@ def index():
     return render_template('index.html', videos=videos_frames)
 
 
-
 # list videos
 @app.route('/list_videos', methods=['GET', 'POST'])
 def list_videos():
@@ -104,6 +103,45 @@ def extract_frame():
     video_frame = extract_video_frame(video_path, frame_index, True)
     return make_result(video_frame)
 
+
+# set line points before start to process video
+@app.route('/set_points', methods=['GET', 'POST'])
+def set_points():
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    points = parse_args('points', '')
+    if not points:
+        return make_result('', 'you must specify points to apply.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    # parse points and apply
+    real_points = points.split(',')
+    if len(real_points) != 4:
+        return make_result('', 'length of points posted is incorrect.', 1)
+
+    points = set_line_points(video_path, real_points[0], real_points[1], real_points[2], real_points[3])
+    return make_result(points)
+
+
+
+# get line points from config file
+@app.route('/get_points', methods=['GET', 'POST'])
+def get_points():
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    points = get_line_points(video_path)
+    return make_result(points)
 
 
 
