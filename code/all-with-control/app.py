@@ -10,7 +10,9 @@ from types import *
 import click
 from flask import Flask, current_app,request, redirect, url_for, render_template, abort, g, request_started, \
     request_finished
+from flask_redis import FlaskRedis
 
+from flask_cors import CORS
 
 from common.common import *
 from common.helper import *
@@ -27,7 +29,13 @@ STREAM_URL_PREFIX = 'rtmp://live.hailigu.com/app/'
 app = Flask(__name__)
 # just set this to true when debug
 app.config['DEBUG'] = True  # False
-
+# cross domain request will be no problem
+CORS(app)
+# preserved for celery and redis
+# app.config['REDIS_HOST'] = 'localhost'
+# app.config['REDIS_PORT'] = 6379
+# app.config['REDIS_DB'] = 0
+# redis_store = FlaskRedis(app)
 
 
 # init or preload something before app start,
