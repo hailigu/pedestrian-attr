@@ -77,6 +77,17 @@ def index():
     return render_template('index.html', videos=videos_frames)
 
 
+
+# get stream player
+@app.route('/play')
+def get_player():
+    video_id = parse_args('vid')
+    if not video_id:
+        return render_template('no_video_id.html')
+    return render_template('jwplayer.html', video_id=video_id,frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT),
+                           stream_url='{}{}'.format(STREAM_URL_PREFIX, video_id))
+
+
 # list videos
 @app.route('/list_videos', methods=['GET', 'POST'])
 def list_videos():

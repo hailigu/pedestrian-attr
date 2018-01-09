@@ -134,6 +134,8 @@ def get_video_path_by_id(vid, video_root):
     return os.path.join(video_root, vid + '.mp4')
 
 
-
+# currently just hard code
+def get_video_frame_by_id(vid, video_root):
+    return '/static/videos/' + vid + '.jpg'
 
 
