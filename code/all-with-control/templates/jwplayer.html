@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>直播查看 - HaiLiGu</title>
+    <script type="text/javascript" src="/static/jwplayer/jwplayer.js"></script>
+</head>
+<body>
+<div id="container">加载中 ...</div>
+    <script type="text/javascript">
+        jwplayer("container").setup({
+        sources: [
+            {
+                file: "{{ stream_url }}"
+            }
+        ],
+        image: "/static/jwplayer/bg.jpg",
+        autostart: true,
+        width: {{ frame_size[0] }},
+        height: {{ frame_size[1] }},
+        primary: "flash"
+});
+</script>
+</body>
+</html>
