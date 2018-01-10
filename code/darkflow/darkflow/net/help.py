@@ -11,6 +11,7 @@ import os
 import csv
 import subprocess as sp
 import numpy
+import re
 
 from PIL import Image
 
@@ -20,22 +21,25 @@ status_p = 0
 
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
 
-cmd_out1 = ['ffmpeg',
-    '-y',
-    '-f', 'rawvideo',
-    '-vcodec','rawvideo',
-    '-pix_fmt', 'bgr24',
-    '-s', '1920x1080',
-    '-i', '-',
-    '-c:v', 'libx264',
-    '-pix_fmt', 'yuv420p',
-    '-preset', 'ultrafast',
-    '-f', 'flv',
-    'rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com']
 
-
-if flag_pipe:
-    pipe = sp.Popen(cmd_out1, stdin=sp.PIPE)
+def ffmpeg_pipe(self, file):
+    url_head = 'rtmp://video-center-bj.alivecdn.com/app/'
+    url_stream = re.split('\.', file)[0]   # get test from test.avi
+    url_host = '?vhost=live.hailigu.com'
+    url = '%s%s%s' % (url_head, url_stream, url_host)
+    cmd_out1 = ['ffmpeg',
+                '-y',
+                '-f', 'rawvideo',
+                '-vcodec', 'rawvideo',
+                '-pix_fmt', 'bgr24',
+                '-s', '1920x1080',
+                '-i', '-',
+                '-c:v', 'libx264',
+                '-pix_fmt', 'yuv420p',
+                '-preset', 'ultrafast',
+                '-f', 'flv',
+                url]
+    self.pipe = sp.Popen(cmd_out1, stdin=sp.PIPE)
 
 def build_train_op(self):
     self.framework.loss(self.out)
@@ -94,26 +98,29 @@ def _get_fps(self, frame):
 def camera_stop(self):
     global  status_p
     status_p = 1
-    print "camera_stop = %d \n" %status_p
+    print ("camera_stop = %d \n" %status_p)
 
 def camera_pause(self):
     global  status_p
     status_p = 2
-    print "camera_pause = %d \n" %status_p
+    print ("camera_pause = %d \n" %status_p)
 
 def camera_resume(self):
     global  status_p
     status_p = 0
-    print "camera_resume = %d \n" %status_p
+    print ("camera_resume = %d \n" %status_p)
 
 def camera_get(self):
     global  status_p
-    print "camera_get = %d \n" % status_p
+    print ("camera_get = %d \n" % status_p)
     return status_p
 
 def camera(self):
     file = self.FLAGS.demo
     SaveVideo = self.FLAGS.saveVideo
+
+    if flag_pipe:
+        ffmpeg_pipe(self, file)
 
     if self.FLAGS.track :
         if self.FLAGS.tracker == "deep_sort":
@@ -226,8 +233,8 @@ def camera(self):
                 if self.FLAGS.display :
                     cv2.imshow('', postprocessed)
                 if flag_pipe:
-                    im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-                    pipe.stdin.write(im.tobytes())
+                    #im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                    self.pipe.stdin.write(postprocessed.tobytes())
 
             # Clear Buffers
             buffer_inp = list()
@@ -252,8 +259,8 @@ def camera(self):
     if self.FLAGS.display :
         cv2.destroyAllWindows()
     if flag_pipe:
-        pipe.stdin.close()
-        pipe.wait()
+        self.pipe.stdin.close()
+        self.pipe.wait()
 
 def to_darknet(self):
     darknet_ckpt = self.darknet

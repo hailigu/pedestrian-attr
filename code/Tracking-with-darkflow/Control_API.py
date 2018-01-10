@@ -64,13 +64,13 @@ if __name__ == '__main__':
         if count == 999999:
             test += 1
             count = 0
-            print test
+            print (test)
 
         if test == 50:
             test += 1
             handle_p.pause_p()
             status = handle_p.get_p()
-            print "status = %d, pause is 2......." % status
+            print ("status = %d, pause is 2......." % status)
         elif test == 100:
             test += 1
             handle_p.resume_p()
@@ -79,5 +79,5 @@ if __name__ == '__main__':
             handle_p.stop_p()
         elif test ==  200:
             status = handle_p.get_p()
-            print "end status = %d......." %status
+            print ("end status = %d......." %status)
             break
