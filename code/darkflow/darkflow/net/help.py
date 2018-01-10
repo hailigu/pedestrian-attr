@@ -9,8 +9,33 @@ import sys
 import cv2
 import os
 import csv
+import subprocess as sp
+import numpy
+
+from PIL import Image
+
+flag_pipe = True
+# add by gongjia
+status_p = 0
 
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
+
+cmd_out1 = ['ffmpeg',
+    '-y',
+    '-f', 'rawvideo',
+    '-vcodec','rawvideo',
+    '-pix_fmt', 'bgr24',
+    '-s', '1920x1080',
+    '-i', '-',
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-preset', 'ultrafast',
+    '-f', 'flv',
+    'rtmp://video-center-bj.alivecdn.com/app/stream?vhost=live.hailigu.com']
+
+
+if flag_pipe:
+    pipe = sp.Popen(cmd_out1, stdin=sp.PIPE)
 
 def build_train_op(self):
     self.framework.loss(self.out)
@@ -65,6 +90,26 @@ def _get_fps(self, frame):
     net_out = self.sess.run(self.out, feed_dict)[0]
     processed = self.framework.postprocess(net_out, frame)
     return timer() - start
+
+def camera_stop(self):
+    global  status_p
+    status_p = 1
+    print "camera_stop = %d \n" %status_p
+
+def camera_pause(self):
+    global  status_p
+    status_p = 2
+    print "camera_pause = %d \n" %status_p
+
+def camera_resume(self):
+    global  status_p
+    status_p = 0
+    print "camera_resume = %d \n" %status_p
+
+def camera_get(self):
+    global  status_p
+    print "camera_get = %d \n" % status_p
+    return status_p
 
 def camera(self):
     file = self.FLAGS.demo
@@ -139,7 +184,14 @@ def camera(self):
     #postprocessed = []
     # Loop through frames
     n = 0
+    global status_p
     while camera.isOpened():
+        if status_p == 1:  # esc
+            print("gongjia: Stoped! " )
+            break
+        if status_p == 2:
+            #print("gongjia: Paused! ")
+            continue
         elapsed += 1
         _, frame = camera.read()
         if frame is None:
@@ -173,6 +225,10 @@ def camera(self):
                     videoWriter.write(postprocessed)
                 if self.FLAGS.display :
                     cv2.imshow('', postprocessed)
+                if flag_pipe:
+                    im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                    pipe.stdin.write(im.tobytes())
+
             # Clear Buffers
             buffer_inp = list()
             buffer_pre = list()
@@ -195,6 +251,9 @@ def camera(self):
     camera.release()
     if self.FLAGS.display :
         cv2.destroyAllWindows()
+    if flag_pipe: 
+	pipe.stdin.close()
+        pipe.wait()
 
 def to_darknet(self):
     darknet_ckpt = self.darknet
