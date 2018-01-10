@@ -84,7 +84,7 @@ def get_player():
     video_id = parse_args('vid')
     if not video_id:
         return render_template('no_video_id.html')
-    return render_template('jwplayer.html', video_id=video_id,frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT),
+    return render_template('player.html', video_id=video_id,frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT),
                            stream_url='{}{}'.format(STREAM_URL_PREFIX, video_id))
 
 
@@ -139,6 +139,12 @@ def set_points():
     return make_result(points)
 
 
+# set line points dynamically when video process is running
+@app.route('/set_points_two', methods=['GET', 'POST'])
+def set_points_two():
+    
+    return make_result()
+
 
 # get line points from config file
 @app.route('/get_points', methods=['GET', 'POST'])
@@ -153,6 +159,20 @@ def get_points():
 
     points = get_line_points(video_path)
     return make_result(points)
+
+
+# start to process video
+@app.route('/start', methods=['GET', 'POST'])
+def start_process():
+    
+    return make_result()
+
+
+# stop to process video with specified object id
+@app.route('/stop', methods=['GET', 'POST'])
+def stop_process():
+    
+    return make_result()
 
 
 
