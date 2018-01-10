@@ -251,8 +251,8 @@ def camera(self):
     camera.release()
     if self.FLAGS.display :
         cv2.destroyAllWindows()
-    if flag_pipe: 
-	pipe.stdin.close()
+    if flag_pipe:
+        pipe.stdin.close()
         pipe.wait()
 
 def to_darknet(self):
