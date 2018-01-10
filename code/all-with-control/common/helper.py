@@ -115,6 +115,12 @@ def set_line_points(file_name, x1, y1, x2, y2):
     return x1, y1, x2, y2
 
 
+# set line points dynamically when process started
+def set_line_points_two(file_name, video_id, object_id, x1, y1, x2, y2):
+    status = False
+    
+    return x1, y1, x2, y2
+
 
 # just get points, should be invoked after set_line_points
 def get_line_points(file_name):
@@ -137,5 +143,21 @@ def get_video_path_by_id(vid, video_root):
 # currently just hard code
 def get_video_frame_by_id(vid, video_root):
     return '/static/videos/' + vid + '.jpg'
+
+
+# get frame size by video id
+def get_frame_size_by_id(vid, video_root):
+    video_path = get_video_path_by_id(vid, video_root)
+    f_name, f_ext = get_file_name_and_ext(video_path)
+
+    conf = config.ConfigParser()
+    points_conf_path = os.path.join(os.path.dirname(video_path), '{}_point.ini'.format(f_name))
+
+    if not os.path.exists(points_conf_path):
+        return False
+    conf.read(points_conf_path)
+    points = conf.get('video', 'size')
+    real_points = points.split(',')
+    return int(real_points[0]), int(real_points[1])
 
 

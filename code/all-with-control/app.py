@@ -175,6 +175,14 @@ def stop_process():
     return make_result()
 
 
+# get process status
+@app.route('/get_status', methods=['GET', 'POST'])
+def get_status():
+    
+    return make_result()
+
+
+
 
 
 if __name__ == "__main__":
