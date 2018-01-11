@@ -175,14 +175,42 @@ def start_process():
 # stop to process video with specified object id
 @app.route('/stop', methods=['GET', 'POST'])
 def stop_process():
-    
-    return make_result()
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    object_id = parse_args('oid')
+    if not object_id:
+        return make_result('', 'you must specify the object Id.', 2)
+
+    status = stop_process_video(video_path, object_id)
+    if not status:
+        return make_result('', 'task has been stopped or wrong oid.', 3)
+    return make_result(status)
 
 
 # get process status
 @app.route('/get_status', methods=['GET', 'POST'])
 def get_status():
-    
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    object_id = parse_args('oid')
+    if not object_id:
+        return make_result('', 'you must specify the object Id.', 2)
+
+    status = get_video_stats(video_path, object_id)
+    if not status:
+        return make_result('', 'task does not exist or wrong oid.', 3)
     return make_result(status)
 
 
