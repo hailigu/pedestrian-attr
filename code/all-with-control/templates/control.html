@@ -93,6 +93,7 @@
          paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
      });
      
+
      $("#getFrameXYWH").click(function() {
          $("#frameXYWH").val(frameX + "," + frameY + "," + frameW + "," + frameH);
      });
@@ -210,9 +211,10 @@ function setPointsTwo() {
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden">
                     <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">提交坐标</button>
-                    
+                    <button id="doStart" type="button" value="submit" onclick="return startForm();" style="margin:5px 0px 0px 20px;">启动处理</button>
+                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:5px 0px 0px 20px;">动态应用坐标(启动后)</button>
                     <button id="doStop" type="button" value="submit" onclick="return stopForm();" style="margin:5px 0px 0px 20px;">停止处理</button>
-                    
+                    <a id="doPlay" href="/play?vid=" target="_blank" style="margin:5px 0px 0px 20px;">查看直播</a>
                 </form>
                 <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
         </div>
