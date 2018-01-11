@@ -93,7 +93,6 @@
          paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
      });
      
-
      $("#getFrameXYWH").click(function() {
          $("#frameXYWH").val(frameX + "," + frameY + "," + frameW + "," + frameH);
      });
@@ -145,8 +144,53 @@
     postPoints();
 }
 
+function startForm() {
+       $.post(baseUrl + "start", {
+            vid: $('#vid').val()
+        },
+        function(data) {
+            $("#results").html(data);
+            obj = jQuery.parseJSON(data);
+            $('#oid').val(obj.results.result);
+            $('#doPlay').attr('href',"/play?vid=" + $('#vid').val());
+        },
+        "text");
+    return false;
+}
 
+function stopForm() {
+     if ($("#oid").val() == "") {
+        alert("处理还没开始！")
+        return false;
+    }
+       $.post(baseUrl + "stop", {
+            vid: $('#vid').val(),
+            oid: $('#oid').val()
+        },
+        function(data) {
+            $("#results").html(data);
+        },
+        "text");
+    return false;
+}
 
+function setPointsTwo() {
+     if ($("#oid").val().trim() == "") {
+        alert("处理还没开始！")
+        return false;
+    }
+       $.post(baseUrl + "set_points_two", {
+            vid: $('#vid').val(),
+            oid: $('#oid').val(),
+           points: $('#points').val()
+
+        },
+        function(data) {
+            $("#results").html(data);
+        },
+        "text");
+    return false;
+}
 </script>
 
 </head>
@@ -166,7 +210,9 @@
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden">
                     <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">提交坐标</button>
-                   
+                    
+                    <button id="doStop" type="button" value="submit" onclick="return stopForm();" style="margin:5px 0px 0px 20px;">停止处理</button>
+                    
                 </form>
                 <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
         </div>
