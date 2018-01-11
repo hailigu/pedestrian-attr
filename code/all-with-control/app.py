@@ -77,6 +77,16 @@ def index():
     return render_template('index.html', videos=videos_frames)
 
 
+# just one ugly control panel page but functional
+@app.route('/control')
+def control_center():
+    video_id = parse_args('vid')
+    if not video_id:
+        return render_template('no_video_id.html')
+    #
+    return render_template('control.html', video_id=video_id,frame_image=get_video_frame_by_id(video_id, VIDEO_ROOT),
+                           frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT))
+
 
 # get stream player
 @app.route('/play')
