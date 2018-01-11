@@ -196,7 +196,10 @@ def get_video_stats(file_name, object_id):
     return status
 
 
-
+# there's no pointer in python, big objects should not
+# be passed across process or thread, cuz It will be
+# led to performance problems. here we go, code below
+# is just the trick to handle this case without RPC,MQ,UDS
 # set object to cache by id
 def set_object_by_id(object_id, some_object):
     global CACHED_OBJECT
