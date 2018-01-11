@@ -115,6 +115,28 @@ def set_line_points(file_name, x1, y1, x2, y2):
     return x1, y1, x2, y2
 
 
+# set line points dynamically when process started
+def set_line_points_two(file_name, video_id, object_id, x1, y1, x2, y2):
+    status = False
+    some_object = get_object_by_id(object_id)
+    if not some_object:
+        logger.error('no cached object for {} with id {}'.format(os.path.basename(file_name), object_id))
+        return status
+
+    size = get_frame_size_by_id(video_id, os.path.dirname(file_name))
+
+    # transfer relative to absolute
+    x1 = int(float(x1) * size[0])
+    y1 = int(float(y1) * size[1])
+    x2 = int(float(x2) * size[0])
+    y2 = int(float(y2) * size[1])
+
+    if type(some_object) == control_p:
+        some_object.setcoo_p(x1, y1, x2, y2)
+        status = True
+        logger.info('apply new points to {} successfully with oid  {}'.format(os.path.basename(file_name), object_id))
+    return x1, y1, x2, y2
+
 
 # just get points, should be invoked after set_line_points
 def get_line_points(file_name):
