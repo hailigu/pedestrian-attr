@@ -78,7 +78,6 @@ def index():
 
 
 
-
 # get stream player
 @app.route('/play')
 def get_player():
@@ -138,7 +137,6 @@ def set_points():
 
     points = set_line_points(video_path, real_points[0], real_points[1], real_points[2], real_points[3])
     return make_result(points)
-
 
 
 
@@ -214,6 +212,26 @@ def get_status():
     return make_result(status)
 
 
+# release memory cached by specified object, should be invoked
+# when corresponding process is going to exit normally
+@app.route('/delete_object', methods=['GET', 'POST'])
+def delete_object():
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    object_id = parse_args('oid')
+    if not object_id:
+        return make_result('', 'you must specify the object Id.', 2)
+
+    status = delete_object_by_id(object_id)
+    if not status:
+        return make_result('', 'object has been deleted or wrong oid.', 3)
+    return make_result(status)
 
 
 
