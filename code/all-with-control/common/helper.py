@@ -115,12 +115,6 @@ def set_line_points(file_name, x1, y1, x2, y2):
     return x1, y1, x2, y2
 
 
-# set line points dynamically when process started
-def set_line_points_two(file_name, video_id, object_id, x1, y1, x2, y2):
-    status = False
-    
-    return x1, y1, x2, y2
-
 
 # just get points, should be invoked after set_line_points
 def get_line_points(file_name):
@@ -159,5 +153,14 @@ def get_frame_size_by_id(vid, video_root):
     points = conf.get('video', 'size')
     real_points = points.split(',')
     return int(real_points[0]), int(real_points[1])
+
+
+# start to process video
+def start_process_video(file_name):
+    points = get_line_points(file_name)
+    logger.info('start to process {}'.format(os.path.basename(file_name)))
+    handler = control_p(file_name, points[0], points[1], points[2], points[3])
+    handler.start_p()
+    return True
 
 

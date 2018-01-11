@@ -78,6 +78,7 @@ def index():
 
 
 
+
 # get stream player
 @app.route('/play')
 def get_player():
@@ -139,11 +140,6 @@ def set_points():
     return make_result(points)
 
 
-# set line points dynamically when video process is running
-@app.route('/set_points_two', methods=['GET', 'POST'])
-def set_points_two():
-    
-    return make_result()
 
 
 # get line points from config file
@@ -164,8 +160,16 @@ def get_points():
 # start to process video
 @app.route('/start', methods=['GET', 'POST'])
 def start_process():
-    
-    return make_result()
+    video_id = parse_args('vid')
+    if not video_id:
+        return make_result('', 'you must specify the video Id.', 2)
+
+    video_path = get_video_path_by_id(video_id, VIDEO_ROOT)
+    if not os.path.exists(video_path):
+        return make_result('', 'request video does not exist.', 1)
+
+    status = start_process_video(video_path)
+    return make_result(status)
 
 
 # stop to process video with specified object id
@@ -179,7 +183,7 @@ def stop_process():
 @app.route('/get_status', methods=['GET', 'POST'])
 def get_status():
     
-    return make_result()
+    return make_result(status)
 
 
 
