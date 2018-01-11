@@ -263,6 +263,15 @@ def delete_object():
     return make_result(status)
 
 
+# should be invoked when there's no task running
+# just for app internal usage
+@app.route('/clear_object', methods=['GET', 'POST'])
+def clear_object():
+    status = clear_object()
+    if not status:
+        return make_result('', 'object might be cleared .', 3)
+    return make_result(status)
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001)
