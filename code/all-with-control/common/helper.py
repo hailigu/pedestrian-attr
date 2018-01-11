@@ -161,6 +161,76 @@ def start_process_video(file_name):
     logger.info('start to process {}'.format(os.path.basename(file_name)))
     handler = control_p(file_name, points[0], points[1], points[2], points[3])
     handler.start_p()
+    object_id = handler.FLAGS.object_id
+    set_object_by_id(object_id, handler)
+    logger.info('start to process {} successfully with oid  {}'.format(os.path.basename(file_name), object_id))
+    return object_id
+
+
+# stop to process video
+def stop_process_video(file_name, object_id):
+    status = False
+    some_object = get_object_by_id(object_id)
+    if not some_object:
+        logger.error('no cached object for {} with id {}'.format(os.path.basename(file_name), object_id))
+        return status
+
+    if type(some_object) == control_p:
+        some_object.stop_p()
+        status = True
+        delete_object_by_id(object_id)
+        logger.info('stop to process {} successfully with oid  {}'.format(os.path.basename(file_name), object_id))
+    return status
+
+
+# get process status
+def get_video_stats(file_name, object_id):
+    status = False
+    some_object = get_object_by_id(object_id)
+    if not some_object:
+        logger.error('no cached object for {} with id {}'.format(os.path.basename(file_name), object_id))
+        return status
+    if type(some_object) == control_p:
+        status = True
+        return some_object.get_p()
+    return status
+
+
+
+# set object to cache by id
+def set_object_by_id(object_id, some_object):
+    global CACHED_OBJECT
+    if object_id not in CACHED_OBJECT:
+        CACHED_OBJECT.setdefault(object_id, some_object)
     return True
 
 
+# get object from cache by its id
+def get_object_by_id(object_id):
+    global CACHED_OBJECT
+    if object_id not in CACHED_OBJECT:
+        return False
+    return CACHED_OBJECT.get(object_id)
+
+
+# release memory allocated by object cache
+def delete_object_by_id(object_id):
+    global CACHED_OBJECT
+    if object_id in CACHED_OBJECT:
+        del CACHED_OBJECT[object_id]
+    else:
+        return False
+    return True
+
+
+# should be invoked when there's no task running
+def delete_all_objects():
+    global CACHED_OBJECT
+    if len(CACHED_OBJECT) > 0:
+        CACHED_OBJECT.clear()
+        del CACHED_OBJECT
+        logger.info('clear objects  successfully ')
+    else:
+        logger.info('currently no cached objects ')
+        return False
+    return True
