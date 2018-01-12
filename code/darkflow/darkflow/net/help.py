@@ -15,24 +15,24 @@ import re
 
 from PIL import Image
 
-flag_pipe = True
-# add by gongjia
-status_p = 0
-
 old_graph_msg = 'Resolving old graph def {} (no guarantee)'
 
 
-def ffmpeg_pipe(self, file):
+def ffmpeg_pipe(self, file, w, h):
     url_head = 'rtmp://video-center-bj.alivecdn.com/app/'
+    # file might be absolute path, we just need filename
+    file = os.path.basename(file)
     url_stream = re.split('\.', file)[0]   # get test from test.avi
     url_host = '?vhost=live.hailigu.com'
     url = '%s%s%s' % (url_head, url_stream, url_host)
+    size = '%dx%d' % (w, h)
+    print (size)
     cmd_out1 = ['ffmpeg',
                 '-y',
                 '-f', 'rawvideo',
                 '-vcodec', 'rawvideo',
                 '-pix_fmt', 'bgr24',
-                '-s', '1920x1080',
+                '-s', size,
                 '-i', '-',
                 '-c:v', 'libx264',
                 '-pix_fmt', 'yuv420p',
@@ -96,31 +96,25 @@ def _get_fps(self, frame):
     return timer() - start
 
 def camera_stop(self):
-    global  status_p
-    status_p = 1
-    print ("camera_stop = %d \n" %status_p)
+    self.FLAGS.process_status = 1
 
 def camera_pause(self):
-    global  status_p
-    status_p = 2
-    print ("camera_pause = %d \n" %status_p)
+    self.FLAGS.process_status = 2
 
 def camera_resume(self):
-    global  status_p
-    status_p = 0
-    print ("camera_resume = %d \n" %status_p)
+    self.FLAGS.process_status = 0
 
 def camera_get(self):
-    global  status_p
-    print ("camera_get = %d \n" % status_p)
-    return status_p
+    return self.FLAGS.process_status
 
+def camera_set(self, x1,y1,x2,y2):
+    self.FLAGS.x1 = x1
+    self.FLAGS.y1 = y1
+    self.FLAGS.x2 = x2
+    self.FLAGS.y2 = y2
 def camera(self):
     file = self.FLAGS.demo
     SaveVideo = self.FLAGS.saveVideo
-
-    if flag_pipe:
-        ffmpeg_pipe(self, file)
 
     if self.FLAGS.track :
         if self.FLAGS.tracker == "deep_sort":
@@ -162,13 +156,16 @@ def camera(self):
         f =None
         writer= None
     if file == 0:#camera window
-        cv2.namedWindow('', 0)
+        cv2.namedWindow(self.FLAGS.object_id, 0)
         _, frame = camera.read()
         height, width, _ = frame.shape
-        cv2.resizeWindow('', width, height)
+        cv2.resizeWindow(self.FLAGS.object_id, width*0.5, height*0.5)
     else:
         _, frame = camera.read()
         height, width, _ = frame.shape
+    
+    if self.FLAGS.push_stream:
+        ffmpeg_pipe(self, file, width, height)
 
     if SaveVideo:
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -191,12 +188,11 @@ def camera(self):
     #postprocessed = []
     # Loop through frames
     n = 0
-    global status_p
     while camera.isOpened():
-        if status_p == 1:  # esc
+        if self.FLAGS.process_status == 1:  # esc
             print("gongjia: Stoped! " )
             break
-        if status_p == 2:
+        if self.FLAGS.process_status == 2:
             #print("gongjia: Paused! ")
             continue
         elapsed += 1
@@ -231,8 +227,8 @@ def camera(self):
                 if SaveVideo:
                     videoWriter.write(postprocessed)
                 if self.FLAGS.display :
-                    cv2.imshow('', postprocessed)
-                if flag_pipe:
+                    cv2.imshow(self.FLAGS.object_id, postprocessed)
+                if self.FLAGS.push_stream:
                     #im = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
                     self.pipe.stdin.write(postprocessed.tobytes())
 
@@ -250,6 +246,7 @@ def camera(self):
             if choice == 27:
                 break
 
+    cv2.imwrite('{}_{}_counter.jpg'.format(self.FLAGS.demo, self.FLAGS.object_id), postprocessed)
     sys.stdout.write('\n')
     if SaveVideo:
         videoWriter.release()
@@ -258,7 +255,7 @@ def camera(self):
     camera.release()
     if self.FLAGS.display :
         cv2.destroyAllWindows()
-    if flag_pipe:
+    if self.FLAGS.push_stream:
         self.pipe.stdin.close()
         self.pipe.wait()
 
