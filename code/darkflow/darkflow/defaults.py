@@ -42,6 +42,16 @@ class argHandler(dict):
         self.define('csv', False, 'write csv of predictions')
         self.define('display', True, 'whether to display or not')
         self.define('tracker', "sort", 'which tracker to use')
+        # added by DeepKeeper
+        self.define('object_id', str(uuid.uuid1()), 'id to get cached object')
+        self.define('video_id', '', 'video id, currently it is just file name')
+        # make vars thread safety
+        self.define('process_status', 0, 'video process status')
+        self.define('push_stream', 0, 'video process status')
+        self.define('person_ids', [], 'confirmed person id list')
+        self.define('person_count', [], 'tracker point number per person')
+
+
     def define(self, argName, default, description):
         self[argName] = default
         self._descriptions[argName] = description
