@@ -1,10 +1,12 @@
 import numpy as np
+import matplotlib.path as mplPath
 import math
 import cv2
 import os
 import json
 import csv
 from GetCsvColumn import CsvFile,EXCLUDE
+
 
 #from scipy.special import expit
 #from utils.box import BoundBox, box_iou, prob_compare
@@ -14,42 +16,45 @@ from ...cython_utils.cy_yolo2_findboxes import box_constructor
 
 
 ds = True
-dict = {}
+#csvfilename = '1.h264.csv'
+#csvfile = CsvFile(csvfilename)
+
+#line check first
+#line check: line points
+#llps = [(628,801), (1879, 983)]     #8.h264
+#llps = [(1445, 315), (287, 1059)]   #7.h264
+
+#range check: range points
+rrps = []
 
 
-ids = []
-ids2 = []
-ids_box = []
+ct = "line"      #or "box"
+# ids = []
 
-flag_display_line = True
-flag_display_box = False
 
-# DarkSlateGray
+#tracker point number per person
+person_count = []
+
+#tracker point list per person
+dict =[]
+# Black
+# LightPink
 # Crimson
 # Purple
-# SkyBlue
+# Blue
 
 # Cyan
 # SeaGreen
 # Yellow
 # DarkOrange
 # Gray
+list_color = [(0, 0, 0), (255,182,193),(128,0,128),(255, 0, 255),(0,0,255),
+			  (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128)]
 
-# LightSlateGray
-# SlateBlue
-# MediumAquamarine
-# LightSeaGreen
-# Sienna
+for i in range(0, 99999):
+	dict.append([])
+	person_count.append(0)
 
-# grey51
-# Thistle1
-# Magenta4
-# DarkOrange4
-# RosyBrown4
-list_color = [(47,79,79), (255,182,193),(128,0,128),(255, 0, 255),(135, 206, 235),
-	     (0,255,255),(46,139,87),(255,255,0),(255,140,0),(128,128,128),
-             (119, 136, 153), (106, 90, 205), (102, 205, 170), (32 , 178, 170), (160, 82, 45),
-             (130, 130, 130), (255, 225, 255), (139, 0, 139), (139, 69, 0), (139, 105, 105)]
 try :
 	from deep_sort.application_util import preprocessing as prep
 	from deep_sort.application_util import visualization
@@ -74,7 +79,7 @@ def findboxes(self, net_out):
 	return boxes
 
 
-def extract_boxes(self,new_im):
+def extract_boxes(new_im):
     cont = []
     new_im=new_im.astype(np.uint8)
     ret, thresh=cv2.threshold(new_im, 127, 255, 0)
@@ -84,13 +89,63 @@ def extract_boxes(self,new_im):
         cnt=contours[i]
         x, y, w, h=cv2.boundingRect(cnt)
         if w*h > 30**2 and ((w < new_im.shape[0] and h <= new_im.shape[1]) or (w <= new_im.shape[0] and h < new_im.shape[1])):
-            if self.FLAGS.tracker == "sort":
-                cont.append([x, y, x+w, y+h])
-            else : cont.append([x, y, w, h])
+            cont.append([x, y, w, h])
     return cont
+def supdate_csv(count):
+	with open(csvfilename, 'rb') as csvfile:
+		reader = csv.DictReader(csvfile)
+		column = [row['track_id'] for row in reader]
+		blist = list(set(column))
+		#print blist
+		clist = sorted([int(i) for i in blist])
+		#print clist
+	if count == 0:
+		return len(clist)
+	else:
+		return clist.index(count) + 1
+
+#check if bbox collide with specified line, which may include multiple line segments
+#input:    bbox, lines
+#output:  true -- line cross bbox  false -- line away from bbox
+def linecheck(ll, bbox):
+	bcross = False
+	uu = 0
+	while uu < len(ll) - 1:
+		startp = ll[uu]	
+		stopp = ll[uu + 1]
+
+		ii = 0  
+
+		while ii < 10: # Add a colon  
+			nx = startp[0] + (stopp[0] - startp[0]) * ii/ 10. 
+			ny = startp[1] + (stopp[1] - startp[1]) * ii/ 10. 
+			minx = min(bbox[0], bbox[2])
+			maxx = max(bbox[0], bbox[2])
+			miny = min(bbox[1], bbox[3])
+			maxy = max(bbox[1], bbox[3])
+			if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
+				bcross = True
+				break
+			ii += 1  
+
+		if bcross:
+			break
+		uu += 1
+
+	return bcross
 
 
-def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None,encoder=None,tracker=None, save = False):
+#check if bbox center is in polygon range
+# input:  centerp -- center point of bbox
+#		verts -- polygon vertex, array of vertex
+# output: 
+def rangecheck(centerp, verts):
+	bbPath = mplPath.Path(verts)
+	b = bbPath.contains_point([centerp])
+	return b[0]
+
+
+def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None,encoder=None,tracker=None):
 	"""
 	Takes net output, draw net_out, save to disk
 	"""
@@ -108,7 +163,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 	h, w, _ = imgcv.shape
 	thick = int((h + w) // 300)
 	resultsForJSON = []
-
+	llps = [(int(self.FLAGS.x1), int(self.FLAGS.y1)), (int(self.FLAGS.x2), int(self.FLAGS.y2))]
 	if not self.FLAGS.track :
 		for b in boxes:
 			boxResults = self.process_box(b, h, w, threshold)
@@ -137,19 +192,16 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			if boxResults is None:
 				continue
 			left, right, top, bot, mess, max_indx, confidence = boxResults
-			if mess not in self.FLAGS.trackObj :
+			if self.FLAGS.trackObj != mess :
 				continue
 			if self.FLAGS.tracker == "deep_sort":
 				detections.append(np.array([left,top,right-left,bot-top]).astype(np.float64))
 				scores.append(confidence)
 			elif self.FLAGS.tracker == "sort":
 				detections.append(np.array([left,top,right,bot]).astype(np.float64))
-		if len(detections) < 3  and self.FLAGS.BK_MOG:
-			detections = detections + extract_boxes(self,mask)
-
+		if len(detections) < 5  and self.FLAGS.BK_MOG:
+			detections = detections + extract_boxes(mask)
 		detections = np.array(detections)
-		if detections.shape[0] == 0 :
-			return imgcv
 		if self.FLAGS.tracker == "deep_sort":
 			scores = np.array(scores)
 			features = encoder(imgcv, detections.copy())
@@ -175,99 +227,70 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			elif self.FLAGS.tracker == "sort":
 				bbox = [int(track[0]),int(track[1]),int(track[2]),int(track[3])]
 				id_num = str(int(track[4]))
+
+			#tracker
+			center_x = int((int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2))
+			center_y = int((int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2 ))
+
+
 			if self.FLAGS.csv:
 				csv.writerow([frame_id,id_num,int(bbox[0]),int(bbox[1]),int(bbox[2])-int(bbox[0]),int(bbox[3])-int(bbox[1])])
 				csv_file.flush()
-			if self.FLAGS.display or self.FLAGS.saveVideo:
-				global person_count
-				global dict
-				global ids_box
-				id_person = int(id_num) #int(update_csv(int(id_num)))
-				id_person_color = id_person % len(list_color)
-				lineThickness = thick // 3
 
-				color_deep = (0, 0, 255)  # Red
-				color_line = (0, 255, 0)  # Green
-				color_box = (255, 0, 0)  # Blue
+			if self.FLAGS.display or self.FLAGS.saveVideo or self.FLAGS.counter:
+				#id_person = int(update_csv(int(id_num)))
+				id_person = int(id_num)
+				id_person_color = int(id_person % len(list_color))
 
-
-				# draw box
-				quadrant_center = [(int(w / 4), int(h / 4)), (int(w * 3 / 4), int(h / 4)),
-								   (int(w * 3 / 4), int(h * 3 / 4)), (int(w / 4), int(h * 3 / 4))]
-				quadrant_1 = [(int(w / 2), 0), (int(w), 0), (int(w), int(h / 2)), (int(w / 2), int(h / 2))]
-				quadrant_2 = [(0, 0), (int(w / 2), 0), (int(0), int(h / 2)), (int(w / 2), int(h / 2))]
-				quadrant_3 = [(0, int(h / 2)), (int(w / 2), int(h / 2)), (int(w / 2), h), (0, int(h))]
-				quadrant_4 = [(int(w / 2), int(h / 2)), (int(w), int(h / 2)), (int(w), int(h)), (int(w / 2), int(h))]
-
-				quadrant = quadrant_center
-
-				if flag_display_box:
-					cv2.rectangle(imgcv, quadrant[0], quadrant[2],
-								  color_box, lineThickness)
-
-				# draw line
-				llx1 = int(w*3 / 8)
-				lly1 = int(h / 3)
-				llx2 = int(w)
-				lly2 = int(h*3 / 4)
-
-				if flag_display_line:
-					cv2.line(imgcv, (llx1, lly1), (llx2, lly2), color_line, lineThickness)
-
-				if id_num not in ids:
-					newone = False
-					ii = 0  
-
-                    			# the width of box, will be > line/10  (900-250)/10 = 65, the same to height
-					while ii < 10: # Add a colon  
-						nx = llx1 + (llx2 - llx1) * ii/ 10. 
-						ny = lly1 + (lly2 - lly1) * ii/ 10. 
-						minx = min(bbox[0], bbox[2])
-						maxx = max(bbox[0], bbox[2])
-						miny = min(bbox[1], bbox[3])
-						maxy = max(bbox[1], bbox[3])
-						if nx >= minx  and nx <= maxx and ny >= miny and ny <= maxy:
-							newone = True;
-							if flag_display_line:
-								cv2.circle(imgcv, ((int)(nx),(int)(ny)), 10, list_color[id_person_color], lineThickness)
-							break
-						ii += 1
-
-					if newone:
-						ids.append(id_num)
-
-
+				#display bbox
 				cv2.rectangle(imgcv, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),
-							  list_color[id_person_color], thick//3)
+						        (0,255,0), thick//3)
+				#cv2.putText(imgcv, str(update_csv(int(id_num))), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, 							(255, 0, 255), thick // 6)
+				#id
+				cv2.putText(imgcv, str(id_person), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
 
+				dict[id_person].append((center_x, center_y))
 
-				center_x = (int(bbox[0]) + (int(bbox[2]) - int(bbox[0])) / 2)
-				center_y = (int(bbox[1]) + (int(bbox[3]) - int(bbox[1])) / 2)
+                
+				for i in range(0, len(dict[id_person])):
+					cv2.circle(imgcv, dict[id_person][i], 1, list_color[id_person_color], thick // 5)
+					if i>0:
+						cv2.line(imgcv,dict[id_person][i-1],dict[id_person][i],list_color[id_person_color], 2)				
+				#pretect tracker from overflowing
+				person_count[id_person] = person_count[id_person] + 1
+				# frame num = 200  10s
+				if 	person_count[id_person]%10 == 0:
+					person_count[id_person] = 0
+					dict[id_person] = []
+		
+			if self.FLAGS.counter:
+				if id_num not in self.FLAGS.person_ids:
+					#line check
+					if len(llps) > 0:
+						res = linecheck(llps, bbox)
+					#bbox check
+					else:
+						res = rangecheck((center_x, center_y), rrps)
 
+					if res:
+						self.FLAGS.person_ids.append(id_num)
 
-				# judge center in quadrant
-				if id_person not in ids2:
-					if center_x > 0  and center_x < w / 2 and center_y > h/2 and center_y < h:
-						ids2.append(id_person)
-						dlist = list(set(ids2))
-						ids_box = sorted([int(i) for i in dlist])
+		font = cv2.FONT_HERSHEY_TRIPLEX
+		cv2.putText(imgcv, 'count: '+str(len(self.FLAGS.person_ids)), (10,70),0, 1e-3 * h, (0,0,255),thick//2)
 
+		#draw line 
+		if len(llps) > 0:
+			lines = llps			
+		else:
+			lines = rrps
 
-				# show person id
-				cv2.putText(imgcv, str(id_person+1), (int(bbox[0]), int(bbox[1]) - 12), 0, 1e-3 * h, list_color[id_person_color], thick // 3)
-				# set font
-				font = cv2.FONT_HERSHEY_TRIPLEX
-
-				# count the person
-				mycount = 0 #update_csv(0)
-
-				# show to UI
-				cv2.putText(imgcv, 'DeepSort: '+str(mycount), (10,30),0, 1e-3 * h, color_deep,lineThickness)
-
-				if flag_display_line:
-					cv2.putText(imgcv, 'LineSort: '+str(len(ids)), (10,70),0, 1e-3 * h, color_line,lineThickness)
-
-				if flag_display_box:
-					cv2.putText(imgcv, 'QuadSort: ' + str(len(ids_box)), (10, 110), 0, 1e-3 * h, color_box, lineThickness)
+		uu = 0
+		while uu < len(lines) -1:
+		        lineThickness = 2
+	        	cv2.line(imgcv, (lines[uu][0], lines[uu][1]), (lines[uu+1][0], lines[uu+1][1]), (0,255,0), lineThickness)
+        		uu += 1
 
 	return imgcv
+
+
+

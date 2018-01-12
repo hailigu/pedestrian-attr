@@ -43,6 +43,7 @@ class argHandler(dict):
         self.define('csv', False, 'write csv of predictions')
         self.define('display', True, 'whether to display or not')
         self.define('tracker', "sort", 'which tracker to use')
+
         # added by DeepKeeper
         self.define('object_id', str(uuid.uuid1()), 'id to get cached object')
         self.define('video_id', '', 'video id, currently it is just file name')
