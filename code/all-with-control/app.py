@@ -28,7 +28,7 @@ STREAM_URL_PREFIX = 'rtmp://live.hailigu.com/app/'
 # create an instance
 app = Flask(__name__)
 # just set this to true when debug
-app.config['DEBUG'] = True  # False
+app.config['DEBUG'] = False  # False
 # cross domain request will be no problem
 CORS(app)
 # preserved for celery and redis
@@ -277,7 +277,7 @@ def delete_object():
 # just for app internal usage
 @app.route('/clear_object', methods=['GET', 'POST'])
 def clear_object():
-    status = clear_object()
+    status = delete_all_objects()
     if not status:
         return make_result('', 'object might be cleared .', 3)
     return make_result(status)
