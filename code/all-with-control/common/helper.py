@@ -253,7 +253,7 @@ def delete_all_objects():
     global CACHED_OBJECT
     if len(CACHED_OBJECT) > 0:
         CACHED_OBJECT.clear()
-        del CACHED_OBJECT
+        # del CACHED_OBJECT
         logger.info('clear objects  successfully ')
     else:
         logger.info('currently no cached objects ')
