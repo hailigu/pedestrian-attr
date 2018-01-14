@@ -45,7 +45,7 @@ def extract_video_frame(file_name, frame_index=-1, for_url=False):
 
     frame_image_path = os.path.join(os.path.dirname(file_name), '{}.jpg'.format(f_name))
     # let's try golden ratio in case for too big frame image
-    if video_width >1280 or video_height > 720:
+    if video_width > 1280 or video_height > 720:
         frame = cv2.resize(frame, (int(video_width*0.6180339887), int(video_height*0.6180339887)))
     cv2.imwrite(frame_image_path, frame)
     logger.info('finished extracting from {} at index {} .'.format(os.path.basename(file_name), frame_index))
@@ -73,6 +73,10 @@ def list_videos_and_frames(dir_name, for_url=False):
         else:
             frame_image_path = extract_video_frame(file, for_url=for_url)
             videos_frames[file_name] = frame_image_path
+        # create ini file automatically when new video added
+        points_conf_path = os.path.join(os.path.dirname(file), '{}_point.ini'.format(file_name))
+        if not os.path.exists(points_conf_path):
+            set_line_points(file, 0, 0, 0, 0)
     return videos_frames
 
 
