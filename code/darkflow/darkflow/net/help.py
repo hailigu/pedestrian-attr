@@ -24,7 +24,7 @@ def ffmpeg_pipe(self, file, w, h):
     file = os.path.basename(file)
     url_stream = re.split('\.', file)[0]   # get test from test.avi
     url_host = '?vhost=live.hailigu.com'
-    url = '%s%s%s' % (url_head, url_stream, url_host)
+    url = '%s%s-%s%s' % (url_head, url_stream,self.FLAGS.object_id, url_host)
     size = '%dx%d' % (w, h)
     print (size)
     cmd_out1 = ['ffmpeg',
