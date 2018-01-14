@@ -8,7 +8,7 @@
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
  var paper;
- var baseUrl = "http://192.168.8.1:5001/";
+ var baseUrl = "/";
  
  //just format number
  function formatNumber(num, pos) {
@@ -93,7 +93,6 @@
          paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
      });
      
-
      $("#getFrameXYWH").click(function() {
          $("#frameXYWH").val(frameX + "," + frameY + "," + frameW + "," + frameH);
      });
@@ -153,7 +152,7 @@ function startForm() {
             $("#results").html(data);
             obj = jQuery.parseJSON(data);
             $('#oid').val(obj.results.result);
-            $('#doPlay').attr('href',"/play?vid=" + $('#vid').val());
+            $('#doPlay').attr('href',"/play?vid=" + $('#vid').val() + '&oid=' + $('#oid').val());
         },
         "text");
     return false;
