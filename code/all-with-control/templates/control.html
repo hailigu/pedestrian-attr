@@ -152,7 +152,7 @@ function startForm() {
             $("#results").html(data);
             obj = jQuery.parseJSON(data);
             $('#oid').val(obj.results.result);
-            $('#doPlay').attr('href',"/play?vid=" + $('#vid').val() + '&oid=' + $('#oid').val());
+		$('#doPlay').attr('href', baseUrl + "play?vid=" + $('#vid').val() + '&oid=' + $('#oid').val());
         },
         "text");
     return false;
