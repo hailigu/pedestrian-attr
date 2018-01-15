@@ -35,7 +35,7 @@
      c = paper.rect(xOffset, yOffset, width, height).attr({
          fill: "#29ECC7",
          stroke: "blue",
-         opacity: .1,
+         opacity: .1
      });
      
      frameW = Math.ceil($("#drawline").width());
@@ -98,101 +98,113 @@
      });
  });
 
- function mouseMove(ev) {
-     Ev = ev || window.event;
-     var mousePos = mouseCoords(ev);
-     document.getElementById("mouseX").value = mousePos.x;
-     document.getElementById("mouseY").value = mousePos.y;
- }
-
- function mouseCoords(ev) {
-     if (ev.pageX || ev.pageY) {
-         return {
-             x: ev.pageX,
-             y: ev.pageY
-         };
-     }
-     return {
-         x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
-         y: ev.clientY + document.body.scrollTop - document.body.clientTop
-     };
- }
-
- document.onmousemove = mouseMove;
-
- function getFrameXYWH() {
-     alert("x:" + $("#drawline").offset().left + ",y:" + $("#drawline").offset().top);
- }
- 
- function postPoints() {
-    $.post(baseUrl + "set_points", {
-            vid: $('#vid').val(),
-            points: $("#points").val()
-        },
-        function(data) {
-            $("#results").html(data);
-        },
-        "text");
-}
- 
- function setPoints() {
-    if ($("#points").val() == "") {        
-        alert("请先划线再提交！")
-        $("#points").focus;        
-        return false;
-    }
-    postPoints();
+function mouseMove(ev) {
+	Ev = ev || window.event;
+	var mousePos = mouseCoords(ev);
+	document.getElementById("mouseX").value = mousePos.x;
+	document.getElementById("mouseY").value = mousePos.y;
 }
 
-function startForm() {
-       $.post(baseUrl + "start", {
-            vid: $('#vid').val()
-        },
-        function(data) {
-            $("#results").html(data);
-            obj = jQuery.parseJSON(data);
-            $('#oid').val(obj.results.result);
+function mouseCoords(ev) {
+	if (ev.pageX || ev.pageY) {
+		return {
+			x: ev.pageX,
+			y: ev.pageY
+		};
+	}
+	return {
+		x: ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+		y: ev.clientY + document.body.scrollTop - document.body.clientTop
+	};
+}
+
+document.onmousemove = mouseMove;
+
+function getFrameXYWH() {
+	alert("x:" + $("#drawline").offset().left + ",y:" + $("#drawline").offset().top);
+}
+
+function showMessage(jsonData, message) {
+	obj = jQuery.parseJSON(jsonData);
+	if (obj.meta.code == 0) {
+		alert(message);
+	} else {
+		if (obj.meta.code > 0) {
+			alert(obj.meta.message);
+		}
+	}
+}
+
+function setPoints() {
+	if ($("#points").val() == "") {
+		alert("请先划线再提交！")
+		$("#points").focus;
+		return false;
+	}
+	$.post(baseUrl + "set_points", {
+		vid: $('#vid').val(),
+		points: $("#points").val()
+	},
+		function (data) {
+		$("#results").html(data);
+		showMessage(data, "设置坐标成功,可以启动任务了！");
+	},
+		"text");
+	return false;
+}
+
+function startTask() {
+	$.post(baseUrl + "start", {
+		vid: $('#vid').val()
+	},
+		function (data) {
+		$("#results").html(data);
+		obj = jQuery.parseJSON(data);
+		$('#oid').val(obj.results.result);
 		$('#doPlay').attr('href', baseUrl + "play?vid=" + $('#vid').val() + '&oid=' + $('#oid').val());
-        },
-        "text");
-    return false;
+		showMessage(data, "任务启动成功,最好等几秒再查看直播！");
+	},
+		"text");
+	return false;
 }
 
-function stopForm() {
-     if ($("#oid").val() == "") {
-        alert("处理还没开始！")
-        return false;
-    }
-       $.post(baseUrl + "stop", {
-            vid: $('#vid').val(),
-            oid: $('#oid').val()
-        },
-        function(data) {
-            $("#results").html(data);
-        },
-        "text");
-    return false;
+function stopTask() {
+	if ($("#oid").val() == "") {
+		alert("处理还没开始！")
+		return false;
+	}
+	$.post(baseUrl + "stop", {
+		vid: $('#vid').val(),
+		oid: $('#oid').val()
+	},
+		function (data) {
+		$("#results").html(data);
+		showMessage(data, "任务停止成功！");
+	},
+		"text");
+	return false;
 }
 
 function setPointsTwo() {
-     if ($("#oid").val().trim() == "") {
-        alert("处理还没开始！")
-        return false;
-    }
-       $.post(baseUrl + "set_points_two", {
-            vid: $('#vid').val(),
-            oid: $('#oid').val(),
-           points: $('#points').val()
+	if ($("#oid").val().trim() == "") {
+		alert("处理还没开始！")
+		return false;
+	}
+	$.post(baseUrl + "set_points_two", {
+		vid: $('#vid').val(),
+		oid: $('#oid').val(),
+		points: $('#points').val()
 
-        },
-        function(data) {
-            $("#results").html(data);
-        },
-        "text");
-    return false;
+	},
+		function (data) {
+		$("#results").html(data);
+		showMessage(data, "动态应用坐标成功，请查看直播页面！");
+	},
+		"text");
+	return false;
 }
-</script>
 
+</script>
 </head>
 <body>     
     <div id="bodyArea">
@@ -209,10 +221,10 @@ function setPointsTwo() {
                     <input id="points" type="text" style="margin:5px 0px 0px 20px;" size="90">
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden">
-                    <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">提交坐标</button>
-                    <button id="doStart" type="button" value="submit" onclick="return startForm();" style="margin:5px 0px 0px 20px;">启动处理</button>
+                    <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">设置坐标</button>
+                    <button id="doStart" type="button" value="submit" onclick="return startTask();" style="margin:5px 0px 0px 20px;">启动处理</button>
                     <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:5px 0px 0px 20px;">动态应用坐标(启动后)</button>
-                    <button id="doStop" type="button" value="submit" onclick="return stopForm();" style="margin:5px 0px 0px 20px;">停止处理</button>
+                    <button id="doStop" type="button" value="submit" onclick="return stopTask();" style="margin:5px 0px 0px 20px;">停止处理</button>
                     <a id="doPlay" href="/play?vid=" target="_blank" style="margin:5px 0px 0px 20px;">查看直播</a>
                 </form>
                 <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
