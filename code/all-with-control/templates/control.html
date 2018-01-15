@@ -127,10 +127,12 @@ function getFrameXYWH() {
 function showMessage(jsonData, message) {
 	obj = jQuery.parseJSON(jsonData);
 	if (obj.meta.code == 0) {
-		alert(message);
+		//alert(message);
+		$("#results").append(message);
 	} else {
 		if (obj.meta.code > 0) {
-			alert(obj.meta.message);
+			//alert(obj.meta.message);
+            $("#results").append(obj.meta.message);
 		}
 	}
 }
@@ -162,7 +164,7 @@ function startTask() {
 		obj = jQuery.parseJSON(data);
 		$('#oid').val(obj.results.result);
 		$('#doPlay').attr('href', baseUrl + "play?vid=" + $('#vid').val() + '&oid=' + $('#oid').val());
-		showMessage(data, "任务启动成功,最好等几秒再查看直播！");
+		showMessage(data, "任务启动成功！");
 	},
 		"text");
 	return false;
@@ -170,7 +172,7 @@ function startTask() {
 
 function stopTask() {
 	if ($("#oid").val() == "") {
-		alert("处理还没开始！")
+		alert("任务还未启动！")
 		return false;
 	}
 	$.post(baseUrl + "stop", {
@@ -187,7 +189,7 @@ function stopTask() {
 
 function setPointsTwo() {
 	if ($("#oid").val().trim() == "") {
-		alert("处理还没开始！")
+		alert("任务还未启动！")
 		return false;
 	}
 	$.post(baseUrl + "set_points_two", {
@@ -204,6 +206,20 @@ function setPointsTwo() {
 	return false;
 }
 
+function extractFrame() {
+	$.post(baseUrl + "extract_frame", {
+		vid: $('#vid').val()
+	},
+		function (data) {
+		$("#results").html(data);
+		obj = jQuery.parseJSON(data);
+		$("#drawline").attr("style","float:left;background-image:url(" + obj.results.result + "?" +
+            Math.random() + ");background-repeat:no-repeat;width:auto;height:auto;margin:0;");
+		showMessage(data, "截图提取成功！");
+	},
+		"text");
+	return false;
+}
 </script>
 </head>
 <body>     
@@ -215,12 +231,14 @@ function setPointsTwo() {
                 鼠标X: <input id="mouseX" type="text"> 鼠标Y: <input id="mouseY" type="text">
                  XYWH: <input id="frameXYWH" type="text">
                        <input id="getFrameXYWH" type="button" value="获取XYWH" style="margin:5px 0px 0px 20px;"/>
-                       <button id="clear" value="clear"  onclick="return false;" style="margin:5px 0px 0px 20px;">重新划</button><br /><br />
+                       <button id="doExtract" type="button" value="submit" onclick="return extractFrame();" style="margin:5px 0px 0px 20px;">更换截图</button>
+                       <button id="clear" value="clear"  onclick="return false;" style="margin:5px 0px 0px 20px;">重新划线</button><br /><br />
                        <input id="real-points" type="text" style="margin:5px 0px 0px 20px;" size="90">
                 <form id="postform" name="postform" method="post" action="">                    
                     <input id="points" type="text" style="margin:5px 0px 0px 20px;" size="90">
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden">
+
                     <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">设置坐标</button>
                     <button id="doStart" type="button" value="submit" onclick="return startTask();" style="margin:5px 0px 0px 20px;">启动处理</button>
                     <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:5px 0px 0px 20px;">动态应用坐标(启动后)</button>
