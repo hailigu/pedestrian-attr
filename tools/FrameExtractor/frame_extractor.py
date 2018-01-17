@@ -120,7 +120,7 @@ def frame_extractor(args):
         show_message('frame start to be extracted  {}'.format(start_index),logger)
         show_message('frame end to be extracted  {}'.format(end_index),logger)
         show_message('frame count to be extracted  {}'.format(extracted_count),logger)
-        frame_indexes = sorted(random.sample(np.arange(start_index, end_index), extracted_count))
+        frame_indexes = sorted(random.sample(list(np.arange(start_index, end_index)), extracted_count))
         # print (frame_indexes)
         save_path = os.path.join(args.save_root_dir, os.path.basename(file_name))
 
@@ -136,7 +136,7 @@ def frame_extractor(args):
                     show_message('End of video stream reached', logger)
                     break
                 if frame_indexes.count(index_count) > 0:
-                    cv2.imwrite(os.path.join(save_path, '{}_{}.jpg'.format(file_name, index_count)), frame)
+                    cv2.imwrite(os.path.join(save_path, '{0}_{1:0>6d}.jpg'.format(file_name, index_count)), frame)
                     show_message('extracting from {} at index {}'.format(os.path.basename(f), index_count), logger)
                 index_count += 1
         else:
@@ -147,7 +147,7 @@ def frame_extractor(args):
                 (grabbed, frame) = reader.read()
                 if not grabbed:
                     show_message('End of video stream reached', logger)
-                cv2.imwrite(os.path.join(save_path, '{}_{}.jpg'.format(file_name, frame_index)), frame)
+                cv2.imwrite(os.path.join(save_path, '{0}_{1:0>6d}.jpg'.format(file_name, frame_index)), frame)
                 show_message('extracting from {} at index {}'.format(os.path.basename(f), frame_index), logger)
 
         reader.release()
