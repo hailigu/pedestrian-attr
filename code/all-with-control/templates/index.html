@@ -5,13 +5,13 @@
     <title>视频列表 - HaiLiGu</title>
     <meta http-equiv="x-ua-compatible" content="ie=9"/>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
 </head>
 <body>
 <div id="bodyArea">
-    {% for k in videos.keys() %}
-    <li id="{{ k }}" style="alig: center">
-        <a href="control?vid={{ k }}" target="_blank"><img src="{{ videos[k] }}" height="240" width="300"><b>{{ k }}</b></a>
+   {% for k in videos.keys() %}
+    <li id="{{ k }}" style="float:left;">
+        <a href="control?vid={{ k }}" target="_blank"><img src="{{ videos[k] }}" height="240" width="320"><b>{{ k }}</b></a>
     </li>
 {% endfor %}
 </div>

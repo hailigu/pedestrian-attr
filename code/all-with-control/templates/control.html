@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>{{ video_id }} - 控制面板 - HaiLiGu</title>
+<title>{{ video_id }} - 控制面板</title>
 <meta http-equiv="x-ua-compatible" content="ie=9"/>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 <script src="/static/js/raphael.min.js"></script>
@@ -77,8 +77,11 @@
          //console.log('FrameXYWH  ' + frameX + ',' + frameY + ',' + frameW + ',' + frameH)
          //console.log('absolute (x1,y1)=(' + (x1) + ',' + (y1) + '),(x2,y2)=(' + x2 + ',' + y2 + ')')
          //console.log('relative (x1,y1)=(' + (x1 - frameX) + ',' + (y1 - frameY) + '),(x2,y2)=(' + (x2 - frameX) + ',' + (y2 - frameY) + ')')
-         $("#points").val(formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," + formatNumber((x2 - frameX)/frameW,6)  + "," + formatNumber((y2 - frameY)/frameH,6));
-         $("#real-points").val((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY));
+         $("#pointsDisplay").val((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY) + " ==>> " +
+             formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
+             formatNumber((x2 - frameX)/frameW,6)  + "," + formatNumber((y2 - frameY)/frameH,6));
+         $("#points").val(formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
+             formatNumber((x2 - frameX)/frameW,6)  + "," + formatNumber((y2 - frameY)/frameH,6));
      }
 
      paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
@@ -226,24 +229,23 @@ function extractFrame() {
     <div id="bodyArea">
         <div id="drawline" style="float:left;background-image:url({{ frame_image }});background-repeat:no-repeat;width:auto;height:auto;margin:0;"></div>
         <br />
-        <div id="menu" style="margin:0">
-                <h3>按住鼠标左键按需拖动即可,可多次划线,提交时仅应用最后一次划线端点坐标</h3>
+        <div id="menu">
+                <h4>按住鼠标左键按需拖动即可,可多次划线,提交时仅应用最后一次划线端点坐标</h4>
                 鼠标X: <input id="mouseX" type="text"> 鼠标Y: <input id="mouseY" type="text">
-                 XYWH: <input id="frameXYWH" type="text">
-                       <input id="getFrameXYWH" type="button" value="获取XYWH" style="margin:5px 0px 0px 20px;"/>
-                       <button id="doExtract" type="button" value="submit" onclick="return extractFrame();" style="margin:5px 0px 0px 20px;">更换截图</button>
-                       <button id="clear" value="clear"  onclick="return false;" style="margin:5px 0px 0px 20px;">重新划线</button><br /><br />
-                       <input id="real-points" type="text" style="margin:5px 0px 0px 20px;" size="90">
-                <form id="postform" name="postform" method="post" action="">                    
-                    <input id="points" type="text" style="margin:5px 0px 0px 20px;" size="90">
+                 XYWH: <input id="frameXYWH" type="text"><br /><br />
+                       <input id="getFrameXYWH" type="button" value="获取XYWH" style="margin:1px 0px 0px 20px;"/>
+                       <button id="doExtract" type="button" value="submit" onclick="return extractFrame();" style="margin:1px 0px 0px 20px;">更换截图</button>
+                       <button id="clear" value="clear"  onclick="return false;" style="margin:1px 0px 0px 20px;">重新划线</button><br /><br />
+                       <input id="pointsDisplay" type="text" style="margin:1px 0px 0px 20px;" size="90">
+                <form id="postform" name="postform" method="post" action="">
+                    <input id="points" type="hidden" value="">
                     <input id="vid" value="{{ video_id }}" type="hidden">
-                    <input id="oid" value="" type="hidden">
-
-                    <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:5px 0px 0px 20px;">设置坐标</button>
-                    <button id="doStart" type="button" value="submit" onclick="return startTask();" style="margin:5px 0px 0px 20px;">启动处理</button>
-                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:5px 0px 0px 20px;">动态应用坐标(启动后)</button>
-                    <button id="doStop" type="button" value="submit" onclick="return stopTask();" style="margin:5px 0px 0px 20px;">停止处理</button>
-                    <a id="doPlay" href="/play?vid=" target="_blank" style="margin:5px 0px 0px 20px;">查看直播</a>
+                    <input id="oid" value="" type="hidden"><br /><br />
+                    <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:1px 0px 0px 20px;">设置坐标</button>
+                    <button id="doStart" type="button" value="submit" onclick="return startTask();" style="margin:1px 0px 0px 20px;">启动处理</button>
+                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:1px 0px 0px 20px;">动态应用坐标(启动后)</button>
+                    <button id="doStop" type="button" value="submit" onclick="return stopTask();" style="margin:1px 0px 0px 20px;">停止处理</button>
+                    <a id="doPlay" href="/play?vid=" target="_blank" style="margin:1px 0px 0px 20px;">查看直播</a>
                 </form>
                 <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
         </div>
