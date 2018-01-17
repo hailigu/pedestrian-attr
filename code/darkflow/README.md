@@ -275,9 +275,3 @@ flow --pbLoad built_graph/yolo.pb --metaLoad built_graph/yolo.meta --imgdir samp
 If you'd like to load a `.pb` and `.meta` file when using `return_predict()` you can set the `"pbLoad"` and `"metaLoad"` options in place of the `"model"` and `"load"` options you would normally set.
 
 That's all.
-
-
-## MOT for HaiLiGu
-1. add sort num and track line
-2. add across line sort
-3. add sort in box
