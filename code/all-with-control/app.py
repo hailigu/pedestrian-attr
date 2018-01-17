@@ -180,7 +180,7 @@ def set_points_two():
 
     points = set_line_points_two(video_path, video_id, object_id, real_points[0], real_points[1], real_points[2], real_points[3])
     if not points:
-        return make_result('', 'can not apply new points .', 3)
+        return make_result('', 'task has not been started or wrong oid .', 3)
     return make_result(points)
 
 

@@ -18,6 +18,19 @@ from Control_API import *
 CACHED_OBJECT = {}
 
 
+# task status to be used later
+class TaskStatus():
+    Submitted = 1
+    Queued = 2
+    InProgress = 3
+    Pending = 4
+    Completed = 5
+    Failed = 6
+    Aborted = 7
+    Deleted = 8
+    Unknown = 9
+
+
 # extract specified frame in video when frame_index >=0
 # -1 frame will be extracted randomly when video is seekable
 def extract_video_frame(file_name, frame_index=-1, for_url=False):
