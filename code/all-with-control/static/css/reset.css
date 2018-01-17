@@ -1,0 +1,175 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/****************************************************************************************
+****************************     基础通用css3样式定义-初始化     ****************************
+****************************************************************************************/
+
+body,ol,ul,h1,h2,h3,h4,h5,h6,p,th,td,dl,dd,form,fieldset,legend,input,textarea,select,pre{margin:0;padding:0; font-weight: normal}
+body,pre{font:12px/1.0 "微软雅黑",tahoma,arial,sans-serif;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale}
+a{color:#333;text-decoration:none;outline:none;cursor:pointer}
+a:hover{color:#ffd100;text-decoration:none;outline:none}
+em{font-style:normal}
+li{list-style:none}
+input,textarea{outline: none;box-sizing: border-box}
+img{border:0;vertical-align:middle}
+table{border-collapse:collapse;border-spacing:0}
+p{word-wrap:break-word}
+a{outline:none}
+input::-ms-clear{display:none} 
+input::-ms-reveal{display:none}
+
+
+/****************************************************************************************
+****************************     基础通用css3样式定义-文字篇     ****************************
+****************************************************************************************/
+
+/*文字颜色*/
+.fc-333{color:#333}
+.fc-666{color:#666}
+.fc-999{color:#999}
+.fc-aaa{color:#aaa}
+.fc-ccc{color:#ccc}
+.fc-fff{color:#fff}
+.fc-orange{color:#f60}
+.fc-green{color:#49aa1a}
+.fc-blue{color:#0c98f5}
+.fc-red{color:red}
+.fc-main{color:#ffd100}
+
+/*文字大小*/
+.fs-12{font-size:12px}
+.fs-14{font-size:14px}
+.fs-16{font-size:16px}
+.fs-18{font-size:18px}
+.fs-20{font-size:20px}
+.fs-24{font-size:24px}
+.fs-28{font-size:28px}
+.fs-32{font-size:32px}
+
+/*h1-h6文字尺寸*/
+h1{font-size:36px;font-weight:bold;}
+h2{font-size:30px;font-weight:bold;}
+h3{font-size:24px;font-weight:bold;}
+h4{font-size:18px;font-weight:bold;}
+h5{font-size:16px;font-weight:bold;}
+h6{font-size:14px;font-weight:bold;}
+h7{font-size:12px;font-weight:bold;}
+
+/*文字粗细*/
+.fw-normal{font-weight:normal}
+.fw-bold{font-weight:bold}
+
+/*文字行高*/
+.lh100{line-height:100%}
+.lh150{line-height:150%}
+.lh180{line-height:180%}
+.lh200{line-height:200%}
+.lh250{line-height:250%}
+.lh300{line-height:300%}
+
+/*文字对齐*/
+.text-center{text-align:center}
+.text-left{text-align:left}
+.text-right{text-align:right}
+
+/****************************************************************************************
+****************************     基础通用css3样式定义-布局篇     ****************************
+****************************************************************************************/
+.w-80{width: 80%}
+.w-70{width: 70%}
+/*隐藏和出现*/
+.hidden{display:none}
+.show{display:block}
+
+/*浮动样式*/
+.left{float:left;display:inline}
+.right{float:right;display:inline}
+.clear{clear:both}
+
+/*定位样式*/
+.relative{position:relative}
+.absolute{position:absolute}
+	
+/*元素间横向间隔*/
+.blank5{height:5px;overflow:hidden}
+.blank10{height:10px;overflow:hidden}
+.blank15{height:15px;overflow:hidden}
+.blank20{height:20px;overflow:hidden}
+
+/*圆角*/
+.bor-radius2{border-radius:2px}
+.bor-radius3{border-radius:3px}
+.bor-radius4{border-radius:4px}
+
+/*内外边距*/
+.mar-5{margin:5px}
+.mar-10{margin:10px}
+.mar-15{margin:15px}
+.mar-20{margin:20px}
+.mar-l5{margin-left:5px}
+.mar-l10{margin-left:10px}
+.mar-l15{margin-left:15px}
+.mar-l20{margin-left:20px}
+.mar-r5{margin-right:5px}
+.mar-r10{margin-right:10px}
+.mar-r15{margin-right:15px}
+.mar-r20{margin-right:20px}
+.mar-lr5{margin:0 5px}
+.mar-lr10{margin:0 10px}
+.mar-lr15{margin:0 15px}
+.mar-lr20{margin:0 20px}
+.mar-t5{margin-top:5px}
+.mar-t10{margin-top:10px}
+.mar-t15{margin-top:15px}
+.mar-t20{margin-top:20px}
+.mar-b5{margin-bottom:5px}
+.mar-b10{margin-bottom:10px}
+.mar-b15{margin-bottom:15px}
+.mar-b20{margin-bottom:20px}
+.mar-tb5{margin:5px 0px}
+.mar-tb10{margin:10px 0px}
+.mar-tb15{margin:15px 0px}
+.mar-tb20{margin:20px 0px}
+
+.pad-5{padding:5px}
+.pad-10{padding:10px}
+.pad-15{padding:15px}
+.pad-20{padding:20px}
+.pad-25{padding:25px}
+.pad-l5{padding-left:5px}
+.pad-l10{padding-left:10px}
+.pad-l15{padding-left:15px}
+.pad-l20{padding-left:20px}
+.pad-r5{padding-right:5px}
+.pad-r10{padding-right:10px}
+.pad-r15{padding-right:15px}
+.pad-r20{padding-right:20px}
+.pad-lr5{padding:0 5px}
+.pad-lr10{padding:0 10px}
+.pad-lr15{padding:0 15px}
+.pad-lr20{padding:0 20px}
+.pad-t5{padding-top:5px}
+.pad-t10{padding-top:10px}
+.pad-t15{padding-top:15px}
+.pad-t20{padding-top:20px}
+.pad-b5{padding-bottom:5px}
+.pad-b10{padding-bottom:10px}
+.pad-b15{padding-bottom:15px}
+.pad-b20{padding-bottom:20px}
+.pad-tb5{padding:5px 0px}
+.pad-tb10{padding:10px 0px}
+.pad-tb15{padding:15px 0px}
+.pad-tb20{padding:20px 0px}
+
+/*划过动作*/
+.transition3{transition:all 0.3s;-o-transition:all 0.3s;-ms-transition:all 0.3s;-moz-transition:all 0.3s;-webkit-transition:all 0.3s}
+
+/*背景颜色*/
+.bg-white{background:#fff}
+.bg-blue{background:#0c98f5}
+.bg-green{background:#49aa1a}
+.bg-orange{background:#f60}
+.bg-red{background:red}
+.bg-f8{background:#f8f8f8}
+.bg-f5{background:#f5f5f5}
