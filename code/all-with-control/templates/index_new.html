@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>视频列表</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
+</head>
+<body>
+	<!--顶部-->
+	<div class="mainTitle">
+		<a href="#" class="logo">行人计数</a>
+		<div class="mainTitleContent">
+			<ul class="guid">
+				<li><a href="/">首页</a></li>
+				<li class="active"><a href="/">列表</a></li>
+			</ul>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<!--顶部-->
+	
+	<!--列表容器-->
+	<div class="mainContent">
+		<div class="listTab">
+			<div class="listTabInner">
+				<ul>
+					<li class="active">待处理</li>
+					<li>正在处理</li>
+					<li>处理完成</li>
+				</ul>
+				<p class="detail">
+                    <p class="detail">CPU:<b>55%</b><span class="fc-ccc mar-lr10">|</span>Memory:<b>XXX</b><span class="fc-ccc mar-lr10">|</span>GPU:<b>33%</b><span class="fc-ccc mar-lr10">|</span>GPU Mem:<b>xx</b></p>
+                </p>
+				<div class="clear"></div>
+			</div>
+		</div>
+        {% for k in videos.keys() %}
+         <div id="{{ k }}" class="VideoList transition3">
+			<img class="scanImg" src="{{ videos[k] }}"/>
+			<div class="detail">
+				<h5 class="lh200">视频 - {{ k }}</h5>
+				<p class="lh150">状态：<span class="fc-ccc mar-lr10">|</span>计数：</p>
+			</div>
+			<a href="/control?vid={{ k }}" target="_blank"><button class="transition3">马上处理</button></a>
+			<div class="clear"></div>
+		</div>
+        {% endfor %}
+		<div id="demo2-2" class="text-center"></div>
+	</div>
+	<!--列表容器-->
+</body>
+</html>
