@@ -74,7 +74,7 @@ def after_request_handler(response):
 @app.route('/')
 def index():
     videos_frames = list_videos_and_frames(VIDEO_ROOT, True)
-    return render_template('index.html', videos=videos_frames)
+    return render_template('index_new.html', videos=videos_frames)
 
 
 # just one ugly control panel page but functional
