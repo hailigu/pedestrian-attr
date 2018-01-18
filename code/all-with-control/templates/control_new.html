@@ -104,8 +104,6 @@
 function mouseMove(ev) {
 	Ev = ev || window.event;
 	var mousePos = mouseCoords(ev);
-	document.getElementById("mouseX").value = mousePos.x;
-	document.getElementById("mouseY").value = mousePos.y;
 }
 
 function mouseCoords(ev) {
@@ -248,21 +246,18 @@ function extractFrame() {
 	<div class="mainContent">
 		<div id="drawline" class="VideoArea" style="float:left;background-image:url({{ frame_image }});background-repeat:no-repeat;width:auto;height:auto;margin:0;">
             <div class="operateArea">
-                <h4>按住鼠标左键按需拖动即可,可多次划线,提交时仅应用最后一次划线端点坐标</h4>
-                鼠标X: <input id="mouseX" type="text"> 鼠标Y: <input id="mouseY" type="text">
-                 XYWH: <input id="frameXYWH" type="text"><br /><br />
-                       <input id="getFrameXYWH" type="button" value="获取XYWH" style="margin:1px 0px 0px 20px;"/>
-                       <button id="doExtract" type="button" value="submit" onclick="return extractFrame();" style="margin:1px 0px 0px 20px;">更换截图</button>
-                       <button id="clear" value="clear"  onclick="return false;" style="margin:1px 0px 0px 20px;">重新划线</button><br /><br />
+                                      
                        <input id="pointsDisplay" type="text" style="margin:1px 0px 0px 20px;" size="90">
                 <form id="postform" name="postform" method="post" action="">
                     <input id="points" type="hidden" value="">
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden"><br /><br />
+                    <button id="doExtract" type="button" value="submit" onclick="return extractFrame();" style="margin:1px 0px 0px 20px;">更换截图
                     <button id="doPost" type="button" value="submit" onclick="return setPoints();" style="margin:1px 0px 0px 20px;">设置坐标</button>
                     <button id="doStart" type="button" value="submit" onclick="return startTask();" style="margin:1px 0px 0px 20px;">启动处理</button>
                     <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();" style="margin:1px 0px 0px 20px;">动态应用坐标(启动后)</button>
                     <button id="doStop" type="button" value="submit" onclick="return stopTask();" style="margin:1px 0px 0px 20px;">停止处理</button>
+                    <button id="clear" value="clear"  onclick="return false;" style="margin:1px 0px 0px 20px;">重新划线</button><br /><br />
                     <a id="doPlay" href="/play?vid=" target="_blank" style="margin:1px 0px 0px 20px;">查看直播</a>
                 </form>
                 
