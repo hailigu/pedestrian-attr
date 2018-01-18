@@ -91,6 +91,10 @@
          $("#frameXYWH").val(frameX + "," + frameY + "," + frameW + "," + frameH);
      });
 
+     // make the height equal
+     if($("#results").height()!= $("#drawline").height()){
+		$("#results").height($("#drawline").height()) ;
+	}
  });
 
 function mouseMove(ev) {
@@ -246,7 +250,7 @@ function checkLiveUrl() {
 	
 	<!--列表容器-->
 	<div class="mainContent">
-		<div id="drawline" class="VideoArea" style="float:left;background-image:url({{ frame_image }});background-repeat:no-repeat;width:auto;height:auto;margin:0;">
+		<div id="drawline" class="VideoArea" style="float:left;background-image:url({{ frame_image }});background-repeat:no-repeat;width:auto;height:auto;">
             <div class="operateArea">
                 <form id="postform" name="postform" method="post" action="">
                     <input id="points" type="hidden" value="">
