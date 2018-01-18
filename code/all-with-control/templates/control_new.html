@@ -253,17 +253,17 @@ function checkLiveUrl() {
                     <input id="vid" value="{{ video_id }}" type="hidden">
                     <input id="oid" value="" type="hidden">
                     <button id="doExtract" type="button" value="submit" onclick="return extractFrame();">更换截图</button>
-                    <button id="doPost" type="button" value="submit" onclick="return setPoints();">设置坐标</button>
-                    <button id="doStart" type="button" value="submit" onclick="return startTask();">启动任务</button>
-                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();">动态应用坐标</button>
-                    <button id="doStop" type="button" value="submit" onclick="return stopTask();">停止处理</button>
+                    <button id="doPost" class="transition3" type="button" value="submit" onclick="return setPoints();" >设置坐标</button>
+                    <button id="doStart" class="transition3" type="button" value="submit" onclick="return startTask();" >启动任务</button>
+                    <button id="doPostTwo" class="transition3" type="button" value="submit" onclick="return setPointsTwo();" >动态应用坐标</button>
+                    <button id="doStop" class="transition3" type="button" value="submit" onclick="return stopTask();" >停止处理</button>
                 </form>
                 <a id="doPlay" href="/play?vid=" target="_blank" onclick="return checkLiveUrl();"><img src="/static/images/play.png"/>查看直播</a>
                 <a id="clear" src="" onclick="return false;"><img src="/static/images/drawLine.png"/>重新划线</a>
 			</div>
 		</div>
-		<div class="VideoScanArea">
-                <textarea id="results" rows="41" cols="60"></textarea>
+		<div id="resultContainer" class="VideoScanArea">
+                <textarea id="results" rows="41" cols="60" ></textarea>
         </div>
         <div class="VideoDetail">
 		</div>
