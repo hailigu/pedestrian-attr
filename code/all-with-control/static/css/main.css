@@ -96,7 +96,7 @@ body{
 	position: relative;
 	width: 70px;
 	height: 70px;
-	background: url(../images/mainTitle-alert.png) center center no-repeat;
+	background: url(./images/mainTitle-alert.png) center center no-repeat;
 }
 .mainTitleAlert .alertNum{
 	position: absolute;
@@ -195,7 +195,7 @@ body{
 	margin-top:80px;
 	margin-left:20px;
 	background:#fff;
-	padding:20px;
+	/*padding:20px;*/
 	padding-bottom:0px;
 }
 .VideoArea .operateArea a{

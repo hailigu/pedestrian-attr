@@ -66,7 +66,7 @@
              stroke: "red"
          });         
 
-         $("#pointsDisplay").val((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY) + " ==>> " +
+         $("#results").append((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY) + " ==>> " +
              formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
              formatNumber((x2 - frameX)/frameW,6)  + "," + formatNumber((y2 - frameY)/frameH,6));
          $("#points").val(formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
@@ -238,8 +238,6 @@ function extractFrame() {
 	<div class="mainContent">
 		<div id="drawline" class="VideoArea" style="float:left;background-image:url({{ frame_image }});background-repeat:no-repeat;width:auto;height:auto;margin:0;">
             <div class="operateArea">
-                                      
-                       <input id="pointsDisplay" type="text" size="90">
                 <form id="postform" name="postform" method="post" action="">
                     <input id="points" type="hidden" value="">
                     <input id="vid" value="{{ video_id }}" type="hidden">
@@ -256,7 +254,7 @@ function extractFrame() {
 			</div>
 		</div>
 		<div class="VideoScanArea">
-                <textarea id="results" rows="16" cols="60" style="margin:5px 0px 0px 20px;"></textarea>
+                <textarea id="results" rows="41" cols="60"></textarea>
         </div>
         <div class="VideoDetail">
 		</div>
