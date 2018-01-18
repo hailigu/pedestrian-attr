@@ -246,9 +246,9 @@ body{
 	background:#fff;
 	padding:20px;
 }
-.VideoArea + .VideoScanArea{
-	display:none;
-}
+/*.VideoArea + .VideoScanArea{*/
+	/*display:none;*/
+/*}*/
 .VideoScanArea img,.VideoArea img{
 	width:100%;
 }
