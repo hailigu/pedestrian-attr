@@ -62,11 +62,11 @@
          x2 = endPoint.x;
          y2 = endPoint.y;
 
-         paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2).attr({
+         paper.path("M" + (x1 - frameX)  + " " + (y1 - frameY) + "L" + (x2 - frameX) + " " + (y2 - frameY)).attr({
              stroke: "red"
-         });         
+         });
 
-         $("#results").append((x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY) + " ==>> " +
+         $("#results").append('\r\n' + (x1 - frameX) + "," + (y1 - frameY) + "," + (x2 - frameX)  + "," + (y2 - frameY) + " ==>> " +
              formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
              formatNumber((x2 - frameX)/frameW,6)  + "," + formatNumber((y2 - frameY)/frameH,6));
          $("#points").val(formatNumber((x1 - frameX)/frameW,6) + "," + formatNumber((y1 - frameY)/frameH,6) + "," +
@@ -247,10 +247,9 @@ function extractFrame() {
                     <button id="doStart" type="button" value="submit" onclick="return startTask();">启动处理</button>
                     <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();">动态应用坐标(启动后)</button>
                     <button id="doStop" type="button" value="submit" onclick="return stopTask();">停止处理</button>
-                    <button id="clear" value="clear"  onclick="return false;">重新划线</button><br /><br />
-                    <a id="doPlay" href="/play?vid=" target="_blank">查看直播</a>
                 </form>
-                
+                <a id="doPlay" href="/play?vid=" target="_blank" onclick="return checkLiveUrl();"><img src="/static/images/play.png"/>查看直播</a>
+                <a id="clear" src="" onclick="return false;"><img src="/static/images/drawLine.png"/>重新划线</a>
 			</div>
 		</div>
 		<div class="VideoScanArea">
