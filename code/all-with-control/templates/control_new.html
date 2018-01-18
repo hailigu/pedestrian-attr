@@ -83,7 +83,8 @@
              opacity: .1
          });
          paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
-         
+         $("#results").html("");
+         $("#results").html("已清除！");
      });
 
      $("#getFrameXYWH").click(function() {
@@ -180,6 +181,7 @@ function stopTask() {
 		function (data) {
 		$("#results").html(data);
 		showMessage(data, "任务停止成功！");
+		$('#doPlay').attr("href","/play?vid=");
 	},
 		"text");
 	return false;
@@ -218,6 +220,14 @@ function extractFrame() {
 		"text");
 	return false;
 }
+
+function checkLiveUrl() {
+    if ($('#doPlay').attr("href") == "/play?vid="){
+        alert("任务还未开始或服务器暂未返回结果，请稍后再查看！");
+        return false;
+    }
+    return true;
+}
 </script>
 </head>
 <body>
@@ -241,11 +251,11 @@ function extractFrame() {
                 <form id="postform" name="postform" method="post" action="">
                     <input id="points" type="hidden" value="">
                     <input id="vid" value="{{ video_id }}" type="hidden">
-                    <input id="oid" value="" type="hidden"><br /><br />
+                    <input id="oid" value="" type="hidden">
                     <button id="doExtract" type="button" value="submit" onclick="return extractFrame();">更换截图</button>
                     <button id="doPost" type="button" value="submit" onclick="return setPoints();">设置坐标</button>
-                    <button id="doStart" type="button" value="submit" onclick="return startTask();">启动处理</button>
-                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();">动态应用坐标(启动后)</button>
+                    <button id="doStart" type="button" value="submit" onclick="return startTask();">启动任务</button>
+                    <button id="doPostTwo" type="button" value="submit" onclick="return setPointsTwo();">动态应用坐标</button>
                     <button id="doStop" type="button" value="submit" onclick="return stopTask();">停止处理</button>
                 </form>
                 <a id="doPlay" href="/play?vid=" target="_blank" onclick="return checkLiveUrl();"><img src="/static/images/play.png"/>查看直播</a>
