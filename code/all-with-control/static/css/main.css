@@ -199,7 +199,7 @@ body{
 	padding-bottom:0px;
 }
 .VideoArea .operateArea a{
-	float:left;
+	float:right;
 	display:inline;
 	height:40px;
 	line-height:40px;
@@ -208,7 +208,7 @@ body{
 	padding:0px 20px;
 	margin:10px 0px;
 	border:1px solid #ddd;
-	margin-right:-1px
+	margin-right:10px
 }
 .VideoArea .operateArea a img{
 	width:24px;
@@ -220,7 +220,7 @@ body{
 	color:#333;
 }
 .VideoArea .operateArea button{
-	float:right;
+	float:left;
 	display:inline;
 	height:40px;
 	border:0;
@@ -240,11 +240,10 @@ body{
 .VideoScanArea{
 	float:left;
 	display:inline;
-	width:760px;
+	width:460px;
 	margin-top:80px;
 	margin-left:20px;
-	background:#fff;
-	padding:20px;
+	padding:0px;
 }
 /*.VideoArea + .VideoScanArea{*/
 	/*display:none;*/
