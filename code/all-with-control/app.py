@@ -84,7 +84,7 @@ def control_center():
     if not video_id:
         return render_template('no_video_id.html')
     #
-    return render_template('control.html', video_id=video_id,frame_image=get_video_frame_by_id(video_id, VIDEO_ROOT),
+    return render_template('control_new.html', video_id=video_id,frame_image=get_video_frame_by_id(video_id, VIDEO_ROOT),
                            frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT))
 
 
