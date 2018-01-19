@@ -261,6 +261,15 @@ def get_status():
     return make_result(status)
 
 
+# get server status
+@app.route('/server_status', methods=['GET', 'POST'])
+def get_server_status():
+    server_status = get_all_server_status()
+    if not server_status:
+        return make_result('', 'error occurred when fetching server status.', 3)
+    return make_result(server_status)
+
+
 # release memory cached by specified object, should be invoked
 # when corresponding process is going to exit normally
 @app.route('/delete_object', methods=['GET', 'POST'])
@@ -294,4 +303,4 @@ def clear_object():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=80)
