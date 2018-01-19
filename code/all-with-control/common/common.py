@@ -14,6 +14,9 @@ import uuid
 from types import *
 from flask import request, jsonify, json
 
+from common.gpu import *
+from common.cpu_ram import *
+
 # timezone and time format
 UTC_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 TZ = pytz.timezone('Asia/Shanghai')
@@ -124,3 +127,23 @@ def init_logger(log_file, level=logging.INFO):
     fh = logging.FileHandler(log_file)
     logger.addHandler(fh)
 
+
+# make enum compatible with py2 and py3
+def enum(*sequential, **named):
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    return type('Enum', (), enums)
+
+
+# query status and merge it into dictionary
+def get_all_server_status():
+    server_status = dict()
+
+    gpu_status = get_gpu_status()
+    ram_status = get_ram_status()
+    load_status, _ = get_server_load()
+
+    server_status['ram'] = ram_status
+    server_status['load'] = load_status
+    server_status['gpuload'] = '{:.1%}'.format(gpu_status.utilization / 100)
+    server_status['gpuram'] = '{:.1%}'.format(gpu_status.memory_used/gpu_status.memory_total)
+    return server_status

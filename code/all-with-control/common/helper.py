@@ -197,7 +197,7 @@ def get_frame_size_by_id(vid, video_root):
 # start to process video
 def start_process_video(file_name):
     points = get_line_points(file_name)
-    logger.info('start to process {}'.format(os.path.basename(file_name)))
+    logger.info('ready to process {}'.format(os.path.basename(file_name)))
     handler = control_p(file_name, points[0], points[1], points[2], points[3])
     handler.start_p()
     object_id = handler.FLAGS.object_id
