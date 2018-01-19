@@ -17,7 +17,8 @@ import psutil
 # memory usage in percent
 def get_ram_status():
     mem_stat = psutil.virtual_memory()
-    return '{}%'.format(mem_stat.percent)
+    return '{:.1%}'.format((mem_stat.total - mem_stat.free)/mem_stat.total)
+    # return '{}%'.format(mem_stat.percent)
 
 
 # get server load status
