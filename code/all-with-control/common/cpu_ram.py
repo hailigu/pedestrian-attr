@@ -24,8 +24,13 @@ def get_ram_status():
 def get_server_load():
     # server load average, server's up-time
     up_time = datetime.datetime.now() - datetime.datetime.fromtimestamp(psutil.boot_time())
-    av1, av2, av3 = os.getloadavg()
-    load = "%.2f %.2f %.2f " %(av1, av2, av3)
+    # little trick on windows,cuz windows does not support getloadavg()
+    av1, av2, av3 = 0.1, 0.1, 0.1
+    if platform.system() == 'Windows':
+        load = '{:.1%}'.format(psutil.cpu_percent(interval=0.2)/100)
+    else:
+        av1, av2, av3 = os.getloadavg()
+        load = "%.2f %.2f %.2f " %(av1, av2, av3)
     up_time = str(up_time).split('.')[0]
     return load, up_time
 
