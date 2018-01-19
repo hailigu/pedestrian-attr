@@ -50,7 +50,7 @@ def build_train_op(self):
 
 def load_from_ckpt(self):
     if self.FLAGS.load < 0: # load lastest ckpt
-        with open(self.FLAGS.backup + 'checkpoint', 'r') as f:
+        with open(os.path.join(self.FLAGS.backup, 'checkpoint'), 'r') as f:
             last = f.readlines()[-1].strip()
             load_point = last.split(' ')[1]
             load_point = load_point.split('"')[1]
@@ -238,7 +238,7 @@ def camera(self):
 
         if elapsed % 5 == 0:
             sys.stdout.write('\r')
-            sys.stdout.write('{0:3.3f} FPS'.format(
+            sys.stdout.write(' {0:3.3f} FPS '.format(
                 elapsed / (timer() - start)))
             sys.stdout.flush()
         if self.FLAGS.display :

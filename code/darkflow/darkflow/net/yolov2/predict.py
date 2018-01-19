@@ -192,7 +192,7 @@ def postprocess(self,net_out, im,frame_id = 0,csv_file=None,csv=None,mask = None
 			if boxResults is None:
 				continue
 			left, right, top, bot, mess, max_indx, confidence = boxResults
-			if self.FLAGS.trackObj != mess :
+			if mess not in self.FLAGS.trackObj :
 				continue
 			if self.FLAGS.tracker == "deep_sort":
 				detections.append(np.array([left,top,right-left,bot-top]).astype(np.float64))
