@@ -8,6 +8,33 @@
     <link rel="stylesheet" type="text/css" href="/static/css/reset.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
     <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript">
+    var baseUrl = "/";
+    function getStatus() {
+        $.get(baseUrl + "server_status", {
+
+        },
+        function (data) {
+            obj = jQuery.parseJSON(data);
+            if (obj.meta.code == 0) {
+                //alert(obj.results.result.load);
+               $("#sysLoad").html(obj.results.result.load);
+               $("#sysRam").html(obj.results.result.ram);
+               $("#gpuLoad").html(obj.results.result.gpuload);
+               $("#gpuRam").html(obj.results.result.gpuram);
+            } else {
+                if (obj.meta.code > 0) {
+                    alert(obj.meta.message);
+                }
+            }
+        },
+		"text");
+        return false;
+    }
+    $(function () {
+        setInterval(getStatus, 5000);
+    });
+    </script>
 </head>
 <body>
 	<!--顶部-->
@@ -33,7 +60,10 @@
 					<li>处理完成</li>
 				</ul>
 				<p class="detail">
-                    <p class="detail">CPU:<b>55%</b><span class="fc-ccc mar-lr10">|</span>Memory:<b>XXX</b><span class="fc-ccc mar-lr10">|</span>GPU:<b>33%</b><span class="fc-ccc mar-lr10">|</span>GPU Mem:<b>xx</b></p>
+                    Load: <span id="sysLoad" style="font-weight: bold;">{{ status.load }}</span><span class="fc-ccc mar-lr10">|</span>
+                    Mem: <span id="sysRam" style="font-weight: bold;">{{ status.ram }}</span><span class="fc-ccc mar-lr10">|</span>
+                    GPU: <span id="gpuLoad" style="font-weight: bold;">{{ status.gpuload }}</span><span class="fc-ccc mar-lr10">|</span>
+                    GPU Mem: <span id="gpuRam" style="font-weight: bold;">{{ status.gpuram }}</span>
                 </p>
 				<div class="clear"></div>
 			</div>

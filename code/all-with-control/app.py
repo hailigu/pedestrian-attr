@@ -73,8 +73,11 @@ def after_request_handler(response):
 # app index
 @app.route('/')
 def index():
+    server_status = get_all_server_status()
+    if not server_status:
+        return make_result('', 'error occurred when fetching server status.', 3)
     videos_frames = list_videos_and_frames(VIDEO_ROOT, True)
-    return render_template('index_new.html', videos=videos_frames)
+    return render_template('index_new.html', status=server_status, videos=videos_frames)
 
 
 # just one ugly control panel page but functional
@@ -83,9 +86,11 @@ def control_center():
     video_id = parse_args('vid')
     if not video_id:
         return render_template('no_video_id.html')
-    #
-    return render_template('control_new.html', video_id=video_id,frame_image=get_video_frame_by_id(video_id, VIDEO_ROOT),
-                           frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT))
+    server_status = get_all_server_status()
+    if not server_status:
+        return make_result('', 'error occurred when fetching server status.', 3)
+    return render_template('control_new.html', video_id=video_id, frame_image=get_video_frame_by_id(video_id, VIDEO_ROOT),
+                           status=server_status, frame_size=get_frame_size_by_id(video_id, VIDEO_ROOT))
 
 
 # get stream player
