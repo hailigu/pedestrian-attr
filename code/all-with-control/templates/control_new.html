@@ -37,7 +37,7 @@
      c = paper.rect(xOffset, yOffset, width, height).attr({
          fill: "#29ECC7",
          stroke: "blue",
-         opacity: .1
+         opacity: .00001
      });
 
      rectBox = getRectBox("rect");
@@ -81,7 +81,7 @@
          c = paper.rect(xOffset, yOffset, width, height).attr({
              fill: "#29ECC7",
              stroke: "blue",
-             opacity: .1
+             opacity: .00001
          });
          paper.set(c).drag(draggingFunction, startDragFunction, endDragFunction);
          $("#results").html("");
